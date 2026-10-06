@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#031b1b">
+  <meta name="description" content="KÖKİZ · Etkileşimli Türk Yazı Duvarı — temassız dijital kültür deneyimi.">
+  <title>KÖKİZ · Etkileşimli Türk Yazı Duvarı</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="evren" aria-hidden="true">
+    <div class="aurora aurora-bir"></div>
+    <div class="aurora aurora-iki"></div>
+    <div class="yildizlar"></div>
+    <div class="ufuk"></div>
+  </div>
+
+  <div class="uygulama-kabugu">
+    <header class="kurumsal-sahne hud-cerceve">
+      <div class="logo-takimi">
+        <div class="logo-yörünge">
+          <span class="yörünge yörünge-1"></span>
+          <span class="yörünge yörünge-2"></span>
+          <span class="yörünge-isaretleri">𐱅 · 𐰇 · 𐰼 · 𐰚</span>
+          <img src="assets/tdt-logo.png" alt="Türk Devletleri Teşkilatı logosu">
+        </div>
+      </div>
+
+      <div class="kurum-basligi">
+        <p class="mikro-baslik">ORTAK HAFIZA · ORTAK GELECEK</p>
+        <h1>TÜRK DEVLETLERİ TEŞKİLATI</h1>
+        <div class="etkinlik-satiri">
+          <strong>29–30 EKİM 2026</strong>
+          <span></span>
+          <b>ANKARA</b>
+        </div>
+        <p class="proje-basligi"><em>KÖKİZ</em> · ETKİLEŞİMLİ TÜRK YAZI DUVARI</p>
+      </div>
+
+      <div class="ust-araclar">
+        <div class="genel-qr-kutusu">
+          <canvas id="genelQr" width="256" height="256" aria-label="KÖKİZ genel e-posta QR kodu"></canvas>
+          <div><strong>TDT RESMÎ SAYFA</strong><small>Telefonla tarayıp aç</small></div>
+        </div>
+        <button id="hafizaButonu" class="ikon-buton hedeflenebilir hafiza-buton" type="button" aria-label="Ortak Hafıza Göğü'nü aç">✦ <span>HAFIZA</span></button>
+        <button id="sesButonu" class="ikon-buton hedeflenebilir ses-buton" type="button" aria-label="Sesi kapat" aria-pressed="true">♫ <span>SES AÇIK</span></button>
+        <button id="tamEkranButonu" class="ikon-buton hedeflenebilir" type="button" aria-label="Tam ekranı aç">⛶ <span>TAM EKRAN</span></button>
+      </div>
+    </header>
+
+    <main class="deneyim-sahnesi hud-cerceve">
+      <section class="yazi-paneli sahne-paneli" aria-labelledby="yaziBasligi">
+        <div class="panel-kodu">01 / CANLI İZ</div>
+        <div class="ulke-secim-paneli">
+          <div class="ulke-secim-baslik"><span>ÖNCE KÖK COĞRAFYANI SEÇ</span><strong id="secilenUlkeAdi">TÜRKİYE</strong></div>
+          <div id="ulkeSecimi" class="ulke-secimi" role="radiogroup" aria-label="Ülke veya bölge seçimi"></div>
+        </div>
+        <div class="etiket-cizgili"><span id="yaziBasligi">LATİN ALFABESİ</span></div>
+        <div id="yaziAlani" class="latin-cikti" tabindex="0" role="textbox" aria-label="İsim veya kelime yazma alanı" aria-live="polite"><span class="yer-tutucu">İSMİNİ YAZ</span></div>
+        <div class="sayac-satiri"><span>CANLI METİN</span><strong id="karakterSayaci">0 / 24</strong></div>
+
+        <div class="ince-ayrac"></div>
+        <div class="etiket-cizgili"><span>KÖK TÜRK YAZISI</span></div>
+        <div id="kokTurkAlani" class="kokturk-cikti" dir="rtl" aria-live="polite"><span class="yer-tutucu">𐰚 𐰇 𐰚 𐰃 𐰔</span></div>
+        <p class="tarih-notu">Unicode Orhon işaretleriyle fonetik ad uyarlamasıdır; tarihî dil çevirisi değildir.</p>
+
+        <div class="iz-ozeti">
+          <div class="iz-muhur">𐱅</div>
+          <div><span>ANLIK İZ NO</span><strong id="anlikIzNo">KIZ-0000</strong></div>
+        </div>
+      </section>
+
+      <section class="anit-sahnesi" aria-label="Dijital Orhun kitabesi">
+        <div class="kozmik-daire daire-1"></div>
+        <div class="kozmik-daire daire-2"></div>
+        <div class="kozmik-daire daire-3"></div>
+        <div class="rune-yörüngesi">𐰀 · 𐰉 · 𐰲 · 𐰑 · 𐰅 · 𐰏 · 𐰴 · 𐰚 · 𐰢 · 𐰤</div>
+        <div class="uzak-tas uzak-tas-sol"></div>
+        <div class="uzak-tas uzak-tas-sag"></div>
+
+        <div id="tasAnit" class="tas-anit" data-columns="1">
+          <div class="tas-kirigi tas-kirigi-a"></div>
+          <div class="tas-kirigi tas-kirigi-b"></div>
+          <div class="tas-pariltisi"></div>
+          <div class="tas-tepe-muhru">KÖKİZ</div>
+          <div id="anitsalKokTurkMetin" class="anit-rune-sutunlari" aria-label="Kitabeye işlenen Kök Türk yazısı"></div>
+          <div id="anitsalLatinMetin" class="anit-latin">İZİNİ TAŞA İŞLE</div>
+        </div>
+
+        <div class="platform platform-1"></div>
+        <div class="platform platform-2"></div>
+        <div class="platform-merkez">𐱅</div>
+        <div class="anit-durum"><i></i><span id="anitDurumu">KİTABE YENİ BİR İZ BEKLİYOR</span></div>
+      </section>
+
+      <aside class="kamera-paneli sahne-paneli" aria-labelledby="kameraBasligi">
+        <div class="kamera-panel-baslik">
+          <div><span class="panel-kodu">02 / GÖRÜNTÜ İŞLEME</span><h2 id="kameraBasligi">TEMASSIZ KAMERA</h2></div>
+          <span id="kameraDurumNoktasi" class="durum-noktasi kapali"></span>
+        </div>
+
+        <div class="kamera-vizoru">
+          <video id="kameraGoruntusu" autoplay muted playsinline></video>
+          <canvas id="elCanvas" aria-hidden="true"></canvas>
+          <div class="vizor-koseleri" aria-hidden="true"></div>
+          <div class="tarama-cizgisi" aria-hidden="true"></div>
+          <div id="kameraYerTutucu" class="kamera-yer-tutucu">
+            <div class="kamera-muhru">◉</div>
+            <strong>KAMERA BEKLEMEDE</strong>
+            <span>Başlat ve elini görüş alanına getir</span>
+          </div>
+          <div class="kamera-canli"><i></i><span id="kameraDurumu">KAMERA KAPALI</span></div>
+          <div class="kamera-veri-seridi">
+            <div><small>EL</small><strong id="algilananElSayisi">0</strong></div>
+            <div><small>HEDEF</small><strong id="hedefTusDurumu">—</strong></div>
+            <div><small>PINCH</small><strong id="secimYuzdesi">%0</strong></div>
+          </div>
+        </div>
+
+        <div class="pinch-olcer">
+          <div class="pinch-etiket"><span id="parmakDurumu">El bekleniyor</span><b>BAŞ + İŞARET</b></div>
+          <div class="secim-cubugu"><div id="secimCubuguDolgu"></div></div>
+        </div>
+
+        <div class="sistem-durumlari">
+          <div><span id="modelDurumNoktasi" class="durum-noktasi kapali"></span><p><small>MODEL</small><strong id="modelDurumu">Yüklenmedi</strong></p></div>
+          <div><span id="elDurumNoktasi" class="durum-noktasi kapali"></span><p><small>ALGILAMA</small><strong id="elDurumu">Bekleniyor</strong></p></div>
+          <div><span id="imlecDurumNoktasi" class="durum-noktasi kapali"></span><p><small>SEÇİM</small><strong id="imlecDurumu">Hazır değil</strong></p></div>
+        </div>
+
+        <div class="kamera-butonlari">
+          <button id="kameraBaslatButonu" class="ana-buton hedeflenebilir" type="button">KAMERAYI BAŞLAT</button>
+          <button id="kameraDurdurButonu" class="ikincil-buton hedeflenebilir" type="button" disabled>DURDUR</button>
+        </div>
+      </aside>
+    </main>
+
+    <section class="kontrol-konsolu hud-cerceve" aria-labelledby="klavyeBasligi">
+      <div class="klavye-alani">
+        <div class="klavye-baslik">
+          <div><span class="panel-kodu">03 / SANAL ALFABE</span><h2 id="klavyeBasligi">PINCH İLE HARF SEÇ</h2></div>
+          <p><i></i> İşaret parmağınla hedefle, başparmağınla birleştir.</p>
+        </div>
+        <div id="klavye" class="klavye" aria-label="Türkçe sanal klavye"></div>
+      </div>
+
+      <aside class="islem-paneli">
+        <div class="komut-satiri">
+          <button id="silButonu" class="komut-buton hedeflenebilir" type="button"><span>⌫</span><b>SİL</b></button>
+          <button id="boslukButonu" class="komut-buton genis hedeflenebilir" type="button"><span>—</span><b>BOŞLUK</b></button>
+          <button id="temizleButonu" class="komut-buton tehlike hedeflenebilir" type="button"><span>×</span><b>TEMİZLE</b></button>
+          <button id="kopyalaButonu" class="komut-buton hedeflenebilir" type="button"><span>⧉</span><b>KOPYALA</b></button>
+        </div>
+        <label class="eposta-alani" for="epostaAlani"><span>HATIRA KARTI E-POSTASI</span><input id="epostaAlani" type="email" autocomplete="email" placeholder="ornek@mail.com"></label>
+        <button id="hatiraButonu" class="hatira-butonu hedeflenebilir" type="button"><span class="hatira-ikon">✦</span><span><small>KİŞİSEL DİJİTAL İZ</small><strong>HATIRA KARTINI OLUŞTUR</strong></span><b>→</b></button>
+        <div class="durum-mesaji"><i></i><span id="durumMesaji" role="status">Sistem hazır. Kamerayı başlat veya fiziksel klavyeyi kullan.</span></div>
+      </aside>
+    </section>
+  </div>
+
+  <section id="ulkeKarsilamaSahnesi" class="ulke-karsilama-sahnesi gizli" aria-hidden="true" aria-live="polite">
+    <div class="ulke-karsilama-isik" aria-hidden="true"></div>
+    <div id="ulkeKarsilamaMotifi" class="ulke-karsilama-motifi" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <b id="ulkeKarsilamaKodu">TR</b>
+    </div>
+    <div id="ulkeKarsilamaBayragi" class="ulke-karsilama-bayragi" role="img" aria-label="Türkiye bayrağı dalgalanıyor">
+      <i class="bayrak-diregi" aria-hidden="true"></i>
+      <div class="bayrak-kumasi"><img id="ulkeKarsilamaBayrakGorseli" src="assets/flags/tr.svg" alt=""></div>
+    </div>
+    <p>KÖK COĞRAFYA BAĞLANTISI KURULDU</p>
+    <h2 id="ulkeKarsilamaAdi">TÜRKİYE</h2>
+    <span id="ulkeKarsilamaMetni">Türkiye’den ortak hafızaya bir iz</span>
+  </section>
+
+  <section id="tasIslemeSahnesi" class="tas-isleme-sahnesi gizli" aria-hidden="true" aria-label="İzin taşa işleniyor">
+    <canvas id="islemeParcacikCanvas" class="isleme-parcacik-canvas" aria-hidden="true"></canvas>
+    <div class="isleme-ufuk" aria-hidden="true"></div>
+    <div class="isleme-halkalari" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div id="islemeUlkeKumesi" class="isleme-ulke-kumesi" aria-hidden="true"><i></i><b id="islemeUlkeKodu">TR</b><span id="islemeUlkeAdi">TÜRKİYE</span></div>
+    <div id="islemeYildizi" class="isleme-yildizi" aria-hidden="true"><span>✦</span><i></i></div>
+    <div class="isleme-merkez">
+      <p class="isleme-koleksiyon">KÖKİZ · ORTAK HAFIZA PROTOKOLÜ</p>
+      <div id="islemeTas" class="isleme-tas">
+        <div id="islemeCatlaklari" class="isleme-catlaklari" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="isleme-darbe-isigi" aria-hidden="true"></div>
+        <div id="islemeRuneleri" class="isleme-runeleri"></div>
+        <strong id="islemeLatinMetin">KÖKİZ</strong>
+        <span class="isleme-tas-muhur">𐱅</span>
+      </div>
+      <div class="isleme-enerji-zemini" aria-hidden="true"></div>
+      <div class="isleme-metinleri">
+        <span id="islemeAsama">DİJİTAL İZ HAZIRLANIYOR</span>
+        <h2 id="islemeBaslik">İzin taşa işleniyor</h2>
+        <div class="isleme-ilerleme"><i id="islemeIlerlemeDolgu"></i></div>
+        <p id="islemeIzNo">KIZ-0000</p>
+      </div>
+    </div>
+    <button id="islemeAtlaButonu" class="isleme-atla" type="button">TÖRENİ ATLA</button>
+  </section>
+
+  <section id="hatiraModal" class="hatira-modal gizli" role="dialog" aria-modal="true" aria-labelledby="hatiraModalBaslik">
+    <div class="modal-kabuk">
+      <div class="modal-ust">
+        <div><span>KÖKİZ KOLEKSİYONU</span><h2 id="hatiraModalBaslik">Kişisel hatıra kartın</h2></div>
+        <div class="modal-islemler">
+          <button id="epostaGonderButonu" class="ana-buton" type="button">E-POSTAMA GÖNDER</button>
+          <button id="kartHafizaButonu" class="ikincil-buton" type="button">ORTAK HAFIZADA GÖR</button>
+          <button id="paylasButonu" class="ikincil-buton" type="button">CİHAZDA PAYLAŞ</button>
+          <button id="indirButonu" class="ikincil-buton" type="button">PNG İNDİR</button>
+          <button id="hatiraKapatButonu" class="modal-kapat" type="button" aria-label="Hatıra kartını kapat">×</button>
+        </div>
+      </div>
+      <div id="epostaGonderimDurumu" class="eposta-gonderim-durumu" role="status" aria-live="polite">
+        <i></i><span>E-posta servisi kontrol ediliyor…</span>
+      </div>
+
+      <article id="hatiraKarti" class="hatira-karti">
+        <header class="kart-ust">
+          <div class="kart-logo-yörünge"><img src="assets/tdt-logo.png" alt="Türk Devletleri Teşkilatı logosu"></div>
+          <div class="kart-kurum">
+            <span>ORTAK HAFIZA · ORTAK GELECEK</span>
+            <h2>TÜRK DEVLETLERİ TEŞKİLATI</h2>
+            <strong>29–30 EKİM 2026 · ANKARA</strong>
+            <p>KÖKİZ · ETKİLEŞİMLİ TÜRK YAZI DUVARI</p>
+          </div>
+          <div class="kart-qr"><canvas id="qrOnizleme" width="320" height="320"></canvas><strong id="kartQrBasligi">KİŞİYE ÖZEL QR</strong><small id="kartQrAciklamasi">Mail taslağını açar</small></div>
+        </header>
+
+        <section class="kart-orta">
+          <div class="kart-metinler">
+            <span class="kart-etiket">LATİN ALFABESİ</span>
+            <h3 id="kartLatinMetin">ENES</h3>
+            <span class="kart-etiket">KÖK TÜRK YAZISI</span>
+            <div id="kartKokTurkMetin" class="kart-kokturk" dir="rtl">𐰀 𐰤 𐰀 𐰾</div>
+            <div class="kart-aciklama"><i>✦</i><p>Adın, dijital Orhun taşında ışığa dönüştü. Bu kart etkinlikte bıraktığın kişisel izin kaydıdır.</p></div>
+          </div>
+
+          <div class="kart-anit-alani">
+            <div class="kart-halka halka-a"></div><div class="kart-halka halka-b"></div>
+            <div class="kart-tas">
+              <div id="kartTasRuneleri" class="kart-tas-runeleri" aria-hidden="true"></div>
+              <strong id="kartTasLatin" class="kart-tas-latin">KÖKİZ</strong>
+              <span class="kart-tas-imza">KÖKİZ</span>
+            </div>
+            <div class="kart-platform"></div>
+          </div>
+
+          <div class="kart-iz-paneli">
+            <div class="kart-tamga"><canvas id="kartTamga" width="180" height="180" aria-label="İsme özel üretilen kişisel tamga"></canvas></div>
+            <div id="kartUlkeMuhru" class="kart-ulke-muhru"><span>TR</span><strong>TÜRKİYE</strong></div>
+            <span>DİJİTAL İZ KAYDI</span>
+            <strong id="kartIzNoOrta">KIZ-0000</strong>
+            <p>Yazı değişir; kaydedilen iz, ortak hafızanın bir parçası olarak kalır.</p>
+            <div class="kart-rune-seridi">𐰚 · 𐰇 · 𐰚 · 𐰃 · 𐰔</div>
+          </div>
+        </section>
+
+        <footer class="kart-alt">
+          <div><span class="alt-ikon">▣</span><p><small>ETKİNLİK</small><strong>29–30 Ekim 2026 · Ankara</strong><b>Türk Devletleri Teşkilatı buluşması</b></p></div>
+          <div><span class="alt-ikon">◎</span><p><small>İZ NO</small><strong id="kartIzNo">KIZ-0000</strong><b>Kişisel hatıra kaydı</b></p></div>
+          <div><span class="alt-ikon">✉</span><p><small>DİJİTAL TESLİM</small><strong id="kartMailBilgisi">E-posta bekleniyor</strong><b>Kart PNG eki olarak gönderilir</b></p></div>
+        </footer>
+      </article>
+    </div>
+  </section>
+
+  <section id="ortakHafizaSahnesi" class="ortak-hafiza-sahnesi gizli" role="dialog" aria-modal="true" aria-labelledby="ortakHafizaBaslik">
+    <canvas id="ortakHafizaCanvas" class="ortak-hafiza-canvas" aria-label="Ortak hafızaya eklenen anonim izlerin yıldız haritası"></canvas>
+    <div class="hafiza-ufuk" aria-hidden="true"></div>
+    <header class="hafiza-ust">
+      <div>
+        <span>KÖKİZ · YAŞAYAN DİJİTAL ESER</span>
+        <h2 id="ortakHafizaBaslik">ORTAK HAFIZA GÖĞÜ</h2>
+        <p>Her ışık anonim bir izi, çizgiler ortak geleceği temsil eder.</p>
+      </div>
+      <button id="hafizaKapatButonu" class="hafiza-kapat" type="button" aria-label="Ortak Hafıza Göğü'nü kapat">×</button>
+    </header>
+    <div class="hafiza-sayaclari" aria-live="polite">
+      <div><small>ORTAK HAFIZADAKİ İZ</small><strong id="hafizaToplam">0</strong></div>
+      <div><small>SON EKLENEN</small><strong id="hafizaSonIz">—</strong></div>
+      <div><small>KOLEKSİYON</small><strong>ANKARA · 2026</strong></div>
+    </div>
+    <div id="hafizaUlkeOzeti" class="hafiza-ulke-ozeti" aria-label="Ülkelere göre anonim iz sayıları"></div>
+    <aside id="hafizaSeciliIz" class="hafiza-secili-iz">
+      <canvas id="hafizaTamga" width="180" height="180" aria-hidden="true"></canvas>
+      <div><small id="hafizaSeciliUlke">DİJİTAL İZ</small><strong id="hafizaSeciliIzNo">Gökyüzünü keşfet</strong><span>Bir ışığa dokun veya imleci üzerinde tut.</span></div>
+    </aside>
+    <div id="hafizaDurumu" class="hafiza-durumu" role="status">Ortak hafıza yükleniyor…</div>
+  </section>
+
+  <canvas id="enerjiIziCanvas" class="enerji-izi-canvas" aria-hidden="true"></canvas>
+  <div id="sanalImlec" class="sanal-imlec" aria-hidden="true"><span></span></div>
+  <div id="bildirim" class="bildirim" role="status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

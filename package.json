@@ -1,0 +1,14 @@
+{
+  "name": "kokiz-etkilesimli-yazi-duvari",
+  "version": "5.5.0",
+  "private": true,
+  "description": "KÖKİZ kamera deneyimi ve e-posta teslim backend'i",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check app.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

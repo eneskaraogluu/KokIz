@@ -1,0 +1,4 @@
+5.5.0
+2026-08-18
+
+Sinematik taş işleme: konumsal kıvılcımlar, kademeli ışık çatlakları, rune darbe halkaları ve final enerji dalgası.
