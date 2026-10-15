@@ -50,13 +50,16 @@ Kart PNG olarak indirilebilir ve destekleyen cihazlarda Web Share API ile payla�
 
 # 2. EN ÖNEMLİ TASARIM REFERANSI
 
-Proje klasöründe:
+Projenin ana sanat yönü `assets/design-reference.png` görseliyle belirlenmişti.
 
-`assets/design-reference.png`
+Bu dosya v5.7.0'da çalışma ağacından kaldırıldı; kodda hiç kullanılmıyordu ve 2.8 MB
+yer tutuyordu. Görsel git geçmişinde duruyor, gerektiğinde geri alınabilir:
 
-adlı görsel bulunuyor.
+```powershell
+git show 333d95e:assets/design-reference.png > design-reference.png
+```
 
-Bu görsel projenin ana sanat yönüdür.
+Sanat yönünün bağlayıcı tanımı artık `styles.css` ile aşağıdaki maddelerdir.
 
 Tasarım dili şu özellikleri korumalı:
 
@@ -82,7 +85,7 @@ Referans görseli yalnızca arka plan resmi olarak kullanıp üstüne HTML koyma
 
 # 3. TEKNOLOJİ YIĞINI
 
-Mevcut uygulama backend olmadan çalışmaktadır.
+Uygulama v3.0.0'dan beri Node.js backend'i ile çalışır (`server.js`).
 
 Kullanılan yapı:
 - HTML5
@@ -90,18 +93,20 @@ Kullanılan yapı:
 - Vanilla JavaScript
 - MediaPipe Tasks Vision 0.10.35
 - HandLandmarker
-- QRious 4.0.2
+- qrcode-generator 2.0.4 (MIT)
 - html2canvas 1.4.1
 - Web Share API
 - Fullscreen API
 - Clipboard API
 - getUserMedia
 
-Python uygulamanın çalışma mantığında kullanılmıyor.
+Python uygulamanın çalışma mantığında kullanılmıyor ve projeyi açmak için de
+kullanılamaz: `py -m http.server` statik dosyaları sunar ama `/api/*` uçlarını
+çalıştıramaz, dolayısıyla e-posta teslimi ve Ortak Hafıza çalışmaz.
 
-Python yalnızca projeyi lokal web sunucusunda açmak için kullanılabilir:
+Uygulama Node.js ile başlatılır:
 
-`py -m http.server 5500`
+`npm start`
 
 Uygulama:
 `http://localhost:5500`
@@ -120,13 +125,24 @@ KokIz/
 - index.html
 - styles.css
 - app.js
+- server.js
+- package.json
+- .env.example
 - README.md
 - PROJECT_PROMPT.md
+- VERSION.txt
 - baslat.bat
 - baslat.ps1
 - assets/
   - tdt-logo.png
-  - design-reference.png
+  - flags/
+- vendor/
+  - mediapipe/
+  - models/
+  - fonts/
+  - qrcode-generator.js
+  - qrcode-generator-utf8.js
+  - html2canvas.min.js
 
 Yeni bir framework eklemek için güçlü bir neden yoksa React/Vue/Next.js gibi frameworklere geçme.
 
@@ -272,14 +288,16 @@ Kullanılan paket:
 
 `@mediapipe/tasks-vision@0.10.35`
 
+Paket v5.6.0'dan beri CDN'den değil proje içinden yüklenir (bkz. `vendor/README.md`):
+
 JavaScript:
-`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/vision_bundle.mjs`
+`/vendor/mediapipe/vision_bundle.mjs`
 
 WASM:
-`https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm`
+`/vendor/mediapipe/wasm`
 
 Model:
-`https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`
+`/vendor/models/hand_landmarker.task`
 
 HandLandmarker ayarları yaklaşık:
 - runningMode: VIDEO
@@ -489,7 +507,8 @@ Kartın tasarım oranı:
 
 # 13. QR MANTIĞI
 
-QRious kullanılır.
+MIT lisanslı `qrcode-generator` 2.0.4 kullanılır. Kütüphane yalnızca modül matrisi
+ürettiği için Canvas 2D çizimi `qrOlustur()` içinde yapılır.
 
 Mevcut frontend sürümünde QR doğrudan sunucudan mail göndermez.
 
@@ -695,7 +714,7 @@ Windows PowerShell:
 
 ```powershell
 cd "PROJE_KLASORU"
-py -m http.server 5500
+npm start
 ```
 
 Chrome:
@@ -910,5 +929,34 @@ Taşa işleme töreni, her Kök Türk işaretinin fiziksel bir darbe hissiyle ay
 - Final mührü taş parlaması, çatlak aydınlanması ve tüm sahneye yayılan enerji dalgasıyla tamamlanır.
 - Efektler harici görsel veya yeni paket kullanmaz; CSS ve mevcut Canvas 2D/Web Audio altyapısıyla çalışır.
 - `prefers-reduced-motion` etkin olduğunda tören mevcut güvenli davranışla atlanır.
+
+---
+
+# Çevrimdışı kiosk ve sunucu sertleştirmesi · v5.6.0
+
+Etkinlik salonunda internet olmayabileceği için bütün üçüncü taraf bağımlılıklar proje içine alınır. Çalışma anında hiçbir harici istek yapılmaz.
+
+- MediaPipe Tasks Vision, el takip modeli, html2canvas ve Cinzel/Inter yazı tipleri `vendor/` altında sürüme sabitlenir; kaynak, lisans ve SHA-256 kayıtları `vendor/README.md` içindedir.
+- `styles.css` içindeki Google Fonts `@import`'u `vendor/fonts/fonts.css` ile değiştirilir. Yazı tipleri latin ve latin-ext alt kümeleriyle sınırlanır; Cinzel ve Inter variable font olduğu için 16 indirme 4 tekil dosyaya iner.
+- `npm run vendor:check` bütün `vendor/` dosyalarının SHA-256 özetini yazar; çıktı `vendor/README.md` içindeki kayıtla birebir aynı olmalıdır.
+- `vendor/` içeriği sürüme sabit olduğu için `immutable` önbelleğe alınır; uygulama dosyaları `no-cache` kalır.
+- Statik sunucuda yasak dosya listesi, URL'in ilk parçası yerine `path.resolve` ile çözümlenmiş yolun her parçası üzerinden denetlenir. Önceki davranışta `/assets/..%2f.env` isteği `.env` dosyasını gövdede döndürüyordu.
+- `PROJECT_PROMPT.md` iç belgesi web üzerinden sunulmaz.
+- Hatıra kartı gönderim sınırı dakikada 5 yerine 20'dir; kiosk'ta bütün ziyaretçiler aynı yerel adresten geldiği için sınır ortaktır.
+- Hız sınırı kayıt tablosu budanır, sürüm bilgisi tek kaynaktan (`package.json`) okunur, `baslat.ps1` sabit port yerine `.env` içindeki `PORT` değerini kullanır.
+- `.env.example` depoya dahildir; `ortak-hafiza.ndjson` çalışma anında üretildiği için depoda tutulmaz.
+
+---
+
+# MIT lisanslı QR üretimi · v5.7.0
+
+QR kütüphanesi lisans nedeniyle değiştirilir. Projedeki bütün bağımlılıklar MIT, Apache-2.0 veya OFL-1.1 kapsamına girer; dağıtımda kopyasol yükümlülük kalmaz.
+
+- GPL-3.0 lisanslı QRious 4.0.2 yerine MIT lisanslı `qrcode-generator` 2.0.4 kullanılır.
+- Kütüphane yalnızca modül matrisi ürettiği için Canvas 2D çizimi `qrOlustur()` içinde yapılır. Renkler (`#001b18` / `#ffffff`), boyut ve en az 14 px sessiz alan önceki görünümle aynıdır.
+- `qrcode-generator-utf8.js` eklentisi zorunludur. Kütüphanenin varsayılan `stringToBytes` fonksiyonu her karakteri `c & 0xff` ile daraltır; bu durumda `ş` (U+015F) sessizce `_` (0x5F) olur ve Türkçe karakter içeren bir e-posta adresi QR içinde bozulur. Eklenti `stringToBytes`'ı UTF-8 sürümüyle değiştirir.
+- İçerik en büyük QR sürümüne de sığmazsa kart boş canvas yerine "QR üretilemedi" yer tutucusu gösterir.
+- Üretilen QR'lar bağımsız bir çözücüyle doğrulanmıştır: genel QR (sürüm 3) ve 302 karakterlik kişisel `mailto` QR'i (sürüm 13) giriş metniyle birebir eşit çözülür.
+- Kodda kullanılmayan `assets/design-reference.png` çalışma ağacından kaldırılır. Dosya git geçmişinde kaldığı için klonlama boyutu değişmez.
 
 ---
