@@ -13,9 +13,11 @@ const AYARLAR = Object.freeze({
   gecmisPencereBoyutu: 4
 });
 
-const MEDIAPIPE_PAKET = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/vision_bundle.mjs";
-const MEDIAPIPE_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm";
-const EL_MODELI = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+// MediaPipe paketi, wasm ikilileri ve el modeli proje icinde tutulur; kiosk
+// internet baglantisi olmadan da calisir. Surumler vendor/README.md icinde.
+const MEDIAPIPE_PAKET = "/vendor/mediapipe/vision_bundle.mjs";
+const MEDIAPIPE_WASM = "/vendor/mediapipe/wasm";
+const EL_MODELI = "/vendor/models/hand_landmarker.task";
 const GENEL_QR_ADRESI = "https://www.turkicstates.org/tr";
 
 const KLAVYE_SATIRLARI = [
@@ -562,7 +564,9 @@ function epostaGonderButonunuGuncelle() {
   arayuz.epostaGonderButonu.disabled = !durum.backendYapilandirildi || !epostaGecerliMi(arayuz.epostaAlani.value.trim());
 }
 function kokTurkceyeCevir(metin) { return kokTurkIsaretlerineCevir(metin).join(" "); }
-function epostaGecerliMi(eposta) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eposta); }
+function epostaGecerliMi(eposta) {
+  return typeof eposta === "string" && eposta.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eposta);
+}
 
 function izNumarasiOlustur(metin) {
   const temiz = metin.replaceAll(" ", "") || "KOKIZ";

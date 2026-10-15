@@ -1,6 +1,10 @@
-﻿node_modules/
+node_modules/
 __pycache__/
 .venv/
 venv/
 *.log
 .env*
+!.env.example
+
+# Kiosk oturumuna ait, calisma aninda uretilen anonim koleksiyon
+ortak-hafiza.ndjson

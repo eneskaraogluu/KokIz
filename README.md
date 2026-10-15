@@ -44,12 +44,22 @@ KokIz/
 │   │   └── README.md
 │   ├── tdt-logo.png
 │   └── design-reference.png
+├── vendor/
+│   ├── mediapipe/
+│   │   ├── vision_bundle.mjs
+│   │   └── wasm/
+│   ├── models/
+│   │   └── hand_landmarker.task
+│   ├── html2canvas.min.js
+│   ├── qrious.min.js
+│   └── README.md
 ├── index.html
 ├── styles.css
 ├── app.js
 ├── server.js
 ├── package.json
 ├── .env.example
+├── .gitattributes
 ├── .gitignore
 ├── PROJECT_PROMPT.md
 ├── README.md
@@ -66,6 +76,8 @@ KokIz/
 - `server.js`: statik web sunucusu, sağlık kontrolü, anonim ortak hafıza koleksiyonu ve Resend tabanlı güvenli e-posta API'si.
 - `package.json`: Node.js sürüm şartı ve başlatma/kontrol komutları. Harici npm paketi gerekmez.
 - `.env.example`: gizli anahtar içermeyen yapılandırma şablonu.
+- `vendor/`: sürüme sabitlenmiş üçüncü taraf kütüphaneler ve el takip modeli; kaynak, lisans ve
+  SHA-256 kayıtları `vendor/README.md` içinde.
 - `assets/design-reference.png`: sanat yönü referansı; doğrudan arka plan olarak kullanılmaz.
 - `assets/flags/`: ülke seçim seremonisinde kullanılan, kaynak bilgileri belgelenmiş özgün bayrak dosyaları.
 
@@ -73,7 +85,8 @@ KokIz/
 
 - Node.js 18 veya daha yeni sürüm
 - Kamera destekli Chrome ya da Edge
-- İlk açılışta MediaPipe, QRious ve html2canvas dosyalarını yüklemek için internet bağlantısı
+- İnternet bağlantısı **gerekmez**: MediaPipe, el takip modeli, QRious ve html2canvas `vendor/`
+  içinde sürüme sabitlenmiş olarak bulunur (bkz. `vendor/README.md`)
 - Gerçek e-posta gönderimi için Resend hesabı, API anahtarı ve doğrulanmış gönderen alan adı/adresi
 
 Python'un basit HTTP sunucusu backend API'sini çalıştıramaz; bu sürüm mutlaka Node.js ile başlatılmalıdır.
@@ -110,7 +123,7 @@ En kolay yöntem `baslat.bat` dosyasına çift tıklamaktır. Başlatıcı:
 PowerShell veya terminal üzerinden:
 
 ```powershell
-cd "C:\Users\enes\Desktop\KokIz"
+cd "<proje-klasorunuzun-yolu>\KokIz"
 npm start
 ```
 
@@ -119,6 +132,14 @@ Kod sözdizimini kontrol etmek için:
 ```powershell
 npm run check
 ```
+
+`vendor/` içindeki kütüphanelerin bozulmadığını doğrulamak için:
+
+```powershell
+npm run vendor:check
+```
+
+Çıktının `vendor/README.md` içinde kayıtlı özetlerle birebir aynı olması gerekir.
 
 ## API
 
@@ -134,9 +155,10 @@ Tarayıcıda üretilen PNG kartı, seçilen ülke kodunu ve sınırlı kart bilg
 - e-posta ve iz numarası doğrulaması,
 - PNG imzası ve 12 MB ham görsel sınırı,
 - 18 MB istek gövdesi sınırı,
-- IP başına dakikada 5 gönderim sınırı,
+- IP başına dakikada 20 gönderim sınırı (kiosk'ta bütün ziyaretçiler aynı yerel adresten gelir),
 - yinelenen gönderimleri azaltan idempotency anahtarı,
-- `.env`, sunucu kodu ve yapılandırma dosyalarının web üzerinden engellenmesi.
+- `.env`, sunucu kodu, yapılandırma dosyaları ve `PROJECT_PROMPT.md` iç belgesinin web üzerinden engellenmesi;
+  denetim çözümlenmiş dosya yolu üzerinden yapılır, böylece kodlanmış ayraçla kurulan yol kaçışları da kapanır.
 
 ### `GET /api/ortak-hafiza`
 
@@ -177,7 +199,11 @@ E-posta alanı odaktayken fiziksel klavye KÖKİZ metnini değiştirmez.
 
 ## Teknik notlar
 
-- MediaPipe Tasks Vision `0.10.35`, QRious `4.0.2` ve html2canvas `1.4.1` CDN üzerinden yüklenir.
+- MediaPipe Tasks Vision `0.10.35`, el takip modeli (HandLandmarker float16/1), QRious `4.0.2` ve
+  html2canvas `1.4.1` `vendor/` klasöründen yerel olarak sunulur; kiosk çevrimdışı çalışır.
+  Kaynak adresleri, lisanslar ve SHA-256 özetleri `vendor/README.md` içinde kayıtlıdır.
+- `vendor/` altındaki dosyalar sürüme sabitlendiği için uzun süreli önbelleğe alınır
+  (`immutable`); uygulama dosyaları her açılışta yeniden okunur (`no-cache`).
 - Pinch mesafesi el ölçeğine göre normalize edilir; hysteresis, hedef kararlılığı ve cooldown yanlış/çift seçimi azaltır.
 - Kamera kapatıldığında bütün video track'leri durdurulur.
 - Hareket azaltma tercihi etkin cihazlarda taş işleme töreni atlanır ve kart doğrudan açılır.

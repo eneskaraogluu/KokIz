@@ -4,6 +4,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const paket = require("./package.json");
 
 const KOK_DIZIN = __dirname;
 const ENV_DOSYASI = path.join(KOK_DIZIN, ".env");
@@ -12,7 +13,7 @@ const MAKSIMUM_ISTEK = 18 * 1024 * 1024;
 const MAKSIMUM_HAFIZA_ISTEGI = 8 * 1024;
 const MAKSIMUM_GORSEL = 12 * 1024 * 1024;
 const ISTEK_PENCERESI = 60_000;
-const ISTEK_SINIRI = 5;
+const ISTEK_SINIRI = 20;
 const HAFIZA_ISTEK_SINIRI = 30;
 const HAFIZA_LISTE_SINIRI = 600;
 const ULKE_ADLARI = Object.freeze({
@@ -59,10 +60,14 @@ const mimeTurleri = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
+  ".wasm": "application/wasm",
+  ".task": "application/octet-stream",
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".svg": "image/svg+xml",
+  ".woff2": "font/woff2",
   ".ico": "image/x-icon",
   ".md": "text/markdown; charset=utf-8",
   ".txt": "text/plain; charset=utf-8",
@@ -77,6 +82,7 @@ const yasakliDosyalar = new Set([
   "ortak-hafiza.ndjson",
   "baslat.ps1",
   "baslat.bat",
+  "project_prompt.md",
 ]);
 
 const istekKayitlari = new Map();
@@ -115,6 +121,13 @@ function hizSiniriniKontrolEt(req, kayitlar = istekKayitlari, sinir = ISTEK_SINI
 
   guncel.push(simdi);
   kayitlar.set(adres, guncel);
+
+  // Uzun süren kiosk oturumlarında kayıt tablosu sınırsız büyümesin.
+  if (kayitlar.size > 256) {
+    for (const [eskiAdres, zamanlar] of kayitlar) {
+      if (simdi - (zamanlar.at(-1) ?? 0) >= ISTEK_PENCERESI) kayitlar.delete(eskiAdres);
+    }
+  }
 }
 
 function ayniKaynagiDogrula(req) {
@@ -367,15 +380,18 @@ function statikDosyaSun(req, res, url) {
   }
 
   const goreli = yol === "/" ? "index.html" : yol.replace(/^\/+/, "");
-  const ilkParca = goreli.split(/[\\/]/)[0].toLowerCase();
-  if (yasakliDosyalar.has(ilkParca) || ilkParca.startsWith(".")) {
-    jsonYanit(res, 404, { ok: false, mesaj: "Bulunamadı." });
-    return;
-  }
 
   let dosya = path.resolve(KOK_DIZIN, goreli);
   if (dosya !== KOK_DIZIN && !dosya.startsWith(`${KOK_DIZIN}${path.sep}`)) {
     jsonYanit(res, 403, { ok: false, mesaj: "Erişim reddedildi." });
+    return;
+  }
+
+  // Yasak liste çözümlenmiş yol üzerinden denetlenir; böylece kodlanmış ayraçla
+  // ("assets/..%2f.env" gibi) kurulan kaçışlar da kapanır.
+  const parcalar = path.relative(KOK_DIZIN, dosya).split(path.sep).filter(Boolean);
+  if (parcalar.some((parca) => yasakliDosyalar.has(parca.toLowerCase()) || parca.startsWith("."))) {
+    jsonYanit(res, 404, { ok: false, mesaj: "Bulunamadı." });
     return;
   }
 
@@ -393,10 +409,13 @@ function statikDosyaSun(req, res, url) {
 
   const tur = mimeTurleri[path.extname(dosya).toLowerCase()] || "application/octet-stream";
   const boyut = fs.statSync(dosya).size;
+  // vendor/ altindaki dosyalar surume sabitlendigi icin uzun sureli onbellege alinir;
+  // boylece 19 MB'lik wasm ve model her sayfa yenilemesinde yeniden okunmaz.
+  const onbellek = parcalar[0] === "vendor" ? "public, max-age=31536000, immutable" : "no-cache";
   res.writeHead(200, {
     "Content-Type": tur,
     "Content-Length": boyut,
-    "Cache-Control": "no-cache",
+    "Cache-Control": onbellek,
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "same-origin",
   });
@@ -418,7 +437,7 @@ const sunucu = http.createServer(async (req, res) => {
       jsonYanit(res, 200, {
         ok: true,
         servis: "kokiz-backend",
-        surum: "5.5.0",
+        surum: paket.version,
         epostaHazir: EPOSTA_HAZIR,
         testModu: TEST_MODU,
         ortakHafizaHazir: true,

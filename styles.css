@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+@import url("vendor/fonts/fonts.css");
 
 :root{
   --gece:#020d0e;--petrol:#031b1b;--zumrut:#06302d;--cam:rgba(2,25,25,.82);

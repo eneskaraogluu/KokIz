@@ -1,7 +1,14 @@
 $ErrorActionPreference = "Stop"
 Set-Location -LiteralPath $PSScriptRoot
 
-$adres = "http://localhost:5500"
+# Acilacak adres .env icindeki PORT degeriyle ayni kalsin.
+$port = 5500
+if (Test-Path -LiteralPath ".env") {
+    foreach ($satir in Get-Content -LiteralPath ".env") {
+        if ($satir -match '^\s*PORT\s*=\s*"?(\d+)"?\s*$') { $port = [int]$Matches[1] }
+    }
+}
+$adres = "http://localhost:$port"
 
 function Bekle-Ve-Kapat {
     param([string]$Mesaj)
@@ -34,7 +41,7 @@ try {
 try {
     $yanit = Invoke-WebRequest -UseBasicParsing -Method Head -Uri $adres -TimeoutSec 2
     if ($yanit.StatusCode -ge 200) {
-        Bekle-Ve-Kapat "5500 portunu başka bir uygulama kullanıyor. O uygulamayı kapatıp tekrar deneyin."
+        Bekle-Ve-Kapat "$port portunu başka bir uygulama kullanıyor. O uygulamayı kapatıp tekrar deneyin."
     }
 } catch {
     # Beklenen durum: port boş.
