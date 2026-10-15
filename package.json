@@ -1,12 +1,13 @@
 {
   "name": "kokiz-etkilesimli-yazi-duvari",
-  "version": "5.8.0",
+  "version": "5.8.1",
   "private": true,
   "description": "KÖKİZ kamera deneyimi ve e-posta teslim backend'i",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "check": "node --check server.js && node --check app.js",
+    "test:pinch": "node test/pinch-testi.js",
     "vendor:check": "node -e \"const fs=require('fs'),c=require('crypto'),p=require('path');(function w(d){for(const e of fs.readdirSync(d,{withFileTypes:true}).sort((a,b)=>a.name<b.name?-1:1)){const f=p.join(d,e.name);if(e.isDirectory())w(f);else if(e.name!=='README.md')console.log(c.createHash('sha256').update(fs.readFileSync(f)).digest('base64')+'  '+p.relative('vendor',f).split(p.sep).join('/'));}})('vendor')\""
   },
   "engines": {

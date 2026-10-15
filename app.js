@@ -5,12 +5,15 @@ const AYARLAR = Object.freeze({
   algilamaAraligi: 40,
   imlecYumusatmaOrani: 0.34,
   kameraKenarPayi: 0.10,
-  pinchBaslamaEsigi: 0.27,
-  pinchBirakmaEsigi: 0.40,
-  pinchCooldownSuresi: 250,
-  hedefKararSuresi: 100,
+  pinchBaslamaEsigi: 0.33,
+  pinchBirakmaEsigi: 0.47,
+  pinchCooldownSuresi: 200,
+  hedefKararSuresi: 45,
   pinchDogrulamaSuresi: 70,
-  gecmisPencereBoyutu: 4
+  gecmisPencereBoyutu: 4,
+  pinchPencereBoyutu: 2,
+  hedefYakalamaYaricapi: 14,
+  imlecKilitlenmeGucu: 0.85
 });
 
 // MediaPipe paketi, wasm ikilileri ve el modeli proje icinde tutulur; kiosk
@@ -181,6 +184,7 @@ const durum = {
   pinchSecimiYapildi: false,
   pinchBaslangicHedefi: null,
   pinchBaslangicZamani: 0,
+  pinchIptalEdildi: false,
   sonSecimZamani: -Infinity,
   isaretParmagiGecmisi: [],
   basParmakGecmisi: [],
@@ -231,9 +235,13 @@ function gecmiseNoktaEkle(liste, nokta) {
   if (liste.length > AYARLAR.gecmisPencereBoyutu) liste.shift();
   return ortalamaNokta(liste);
 }
+// Pinch oranı konum geçmişinden daha kısa bir pencerede yumuşatılır. Dört karelik
+// pencere, parmaklar kapandıktan sonra eşiğin aşılmasını ~160 ms geciktiriyordu;
+// teyit süresiyle birlikte seçim hissedilir biçimde gecikiyordu. İki kare titremeyi
+// yine bastırır ama gecikmeyi yarıya indirir.
 function gecmiseOranEkle(deger) {
   durum.pinchOranGecmisi.push(deger);
-  if (durum.pinchOranGecmisi.length > AYARLAR.gecmisPencereBoyutu) durum.pinchOranGecmisi.shift();
+  if (durum.pinchOranGecmisi.length > AYARLAR.pinchPencereBoyutu) durum.pinchOranGecmisi.shift();
   return durum.pinchOranGecmisi.reduce((a,b) => a+b, 0) / durum.pinchOranGecmisi.length;
 }
 function durumGuncelle(metin, nokta, sinif, yazi) {
@@ -1513,6 +1521,7 @@ function kamerayiDurdur() {
   arayuz.kameraBaslatButonu.disabled = false;
   arayuz.kameraDurdurButonu.disabled = true;
   durum.pinchAktif = false; durum.pinchSecimiYapildi = false; durum.pinchBaslangicHedefi = null;
+  durum.pinchIptalEdildi = false;
   durum.isaretParmagiGecmisi = []; durum.basParmakGecmisi = []; durum.pinchOranGecmisi = [];
   arayuz.sanalImlec.classList.remove("gorunur","pinch");
   hedefiTemizle(); secimIlerlemesiniGuncelle(0);
@@ -1549,6 +1558,13 @@ function pinchDurumunuHesapla(noktalar) {
   if (aktif && oran >= AYARLAR.pinchBirakmaEsigi) aktif = false;
   return {aktif, ilerleme};
 }
+function pinchHedefiniSec(simdi) {
+  if (!durum.sonHedefEleman) return null;
+  if (simdi - durum.hedefeGirisZamani < AYARLAR.hedefKararSuresi) return null;
+  if (simdi - durum.sonSecimZamani < AYARLAR.pinchCooldownSuresi) return null;
+  return durum.sonHedefEleman;
+}
+
 function secimIlerlemesiniGuncelle(oran) {
   const yuzde = Math.round(sayiyiSinirla(oran,0,1) * 100);
   arayuz.secimYuzdesi.textContent = `%${yuzde}`;
@@ -1561,6 +1577,7 @@ function elSonucunuCiz(sonuc) {
   if (!eller.length) {
     arayuz.parmakDurumu.textContent = "El görünmüyor";
     durum.pinchAktif = false; durum.pinchSecimiYapildi = false; durum.pinchBaslangicHedefi = null;
+    durum.pinchIptalEdildi = false;
     durum.isaretParmagiGecmisi = []; durum.basParmakGecmisi = []; durum.pinchOranGecmisi = [];
     arayuz.sanalImlec.classList.remove("gorunur","pinch"); enerjiIziniTemizle(); hedefiTemizle(); secimIlerlemesiniGuncelle(0);
     durumGuncelle(arayuz.elDurumu, arayuz.elDurumNoktasi, "bekliyor", "El aranıyor");
@@ -1575,25 +1592,37 @@ function elSonucunuCiz(sonuc) {
 
   const isaret = gecmiseNoktaEkle(durum.isaretParmagiGecmisi, noktalar[8]);
   const bas = gecmiseNoktaEkle(durum.basParmakGecmisi, noktalar[4]);
-  sanalImleciGuncelle(isaret);
   const yumusatilmis = [...noktalar]; yumusatilmis[8] = isaret; yumusatilmis[4] = bas;
+  // Pinch durumu imleçten önce hesaplanır; imleç kilitlenmesi bu bilgiye dayanır.
   const pinch = pinchDurumunuHesapla(yumusatilmis);
+  sanalImleciGuncelle(isaret, pinch);
   secimIlerlemesiniGuncelle(pinch.ilerleme);
   const oncekiAktif = durum.pinchAktif;
   durum.pinchAktif = pinch.aktif;
   const simdi = performance.now();
 
   if (!oncekiAktif && pinch.aktif) {
-    const hedefKararli = durum.sonHedefEleman && simdi - durum.hedefeGirisZamani >= AYARLAR.hedefKararSuresi;
-    const cooldownBitti = simdi - durum.sonSecimZamani >= AYARLAR.pinchCooldownSuresi;
-    durum.pinchBaslangicHedefi = hedefKararli && cooldownBitti ? durum.sonHedefEleman : null;
+    durum.pinchBaslangicHedefi = pinchHedefiniSec(simdi);
     durum.pinchBaslangicZamani = simdi;
     durum.pinchSecimiYapildi = false;
+    durum.pinchIptalEdildi = false;
   }
   if (pinch.aktif) {
-    arayuz.parmakDurumu.textContent = "Pinch algılandı";
     arayuz.sanalImlec.classList.add("pinch");
-    if (durum.pinchBaslangicHedefi && durum.sonHedefEleman !== durum.pinchBaslangicHedefi) durum.pinchBaslangicHedefi = null;
+    // Güvenlik kuralı: pinch başka bir hedefe kayarsa seçim iptal edilir. İmleç pinch
+    // boyunca donduğu için bu artık kazara tetiklenmez.
+    if (durum.pinchBaslangicHedefi && durum.sonHedefEleman !== durum.pinchBaslangicHedefi) {
+      durum.pinchBaslangicHedefi = null;
+      // Hedef bir kez kaydıysa bu pinch artık seçim üretmez; aksi hâlde aşağıdaki
+      // sonradan yakalama, güvenlik kuralını devre dışı bırakıp yanlış tuşa basardı.
+      durum.pinchIptalEdildi = true;
+    }
+    // Ziyaretçi tuşa varır varmaz pinch yaptıysa hedef henüz kararlı sayılmamış olur.
+    // Eskiden bu pinch tamamen boşa giderdi; artık hedef sonradan yakalanabilir.
+    if (!durum.pinchBaslangicHedefi && !durum.pinchSecimiYapildi && !durum.pinchIptalEdildi) {
+      durum.pinchBaslangicHedefi = pinchHedefiniSec(simdi);
+    }
+    arayuz.parmakDurumu.textContent = durum.pinchBaslangicHedefi ? "Pinch algılandı" : "Pinch var · hedefe gel";
     const dogrulandi = simdi - durum.pinchBaslangicZamani >= AYARLAR.pinchDogrulamaSuresi;
     if (!durum.pinchSecimiYapildi && durum.pinchBaslangicHedefi && dogrulandi) {
       durum.pinchSecimiYapildi = true;
@@ -1605,6 +1634,7 @@ function elSonucunuCiz(sonuc) {
     arayuz.sanalImlec.classList.remove("pinch");
     durum.pinchBaslangicHedefi = null;
     durum.pinchSecimiYapildi = false;
+    durum.pinchIptalEdildi = false;
   }
 }
 
@@ -1612,15 +1642,29 @@ function kameraDegeriniEkranaYay(deger) {
   const sinirli = sayiyiSinirla(deger, AYARLAR.kameraKenarPayi, 1-AYARLAR.kameraKenarPayi);
   return (sinirli - AYARLAR.kameraKenarPayi) / (1 - 2*AYARLAR.kameraKenarPayi);
 }
-function sanalImleciGuncelle(nokta) {
+// Pinch yapmak işaret parmağı ucunu başparmağa doğru hareket ettirir; imleç bu
+// noktayı takip ettiği için tam seçim anında kayar ve hedef değişirdi. Bu yüzden
+// parmaklar kapanırken imleç kademeli olarak kilitlenir, pinch etkinken tamamen
+// dondurulur. Böylece "pinch başladığı hedefte bitmeli" kuralı kendiliğinden sağlanır.
+function sanalImleciGuncelle(nokta, pinch) {
+  if (pinch.aktif) {
+    arayuz.sanalImlec.classList.add("gorunur");
+    durum.enerjiIzi.push({x:durum.sanalImlecX,y:durum.sanalImlecY,zaman:performance.now(),pinch:true});
+    if (durum.enerjiIzi.length > 28) durum.enerjiIzi.shift();
+    enerjiIziniCiz();
+    return;
+  }
+
   const hedefX = (1-kameraDegeriniEkranaYay(nokta.x)) * innerWidth;
   const hedefY = kameraDegeriniEkranaYay(nokta.y) * innerHeight;
-  durum.sanalImlecX += (hedefX-durum.sanalImlecX)*AYARLAR.imlecYumusatmaOrani;
-  durum.sanalImlecY += (hedefY-durum.sanalImlecY)*AYARLAR.imlecYumusatmaOrani;
+  const kilit = 1 - AYARLAR.imlecKilitlenmeGucu * sayiyiSinirla(pinch.ilerleme, 0, 1);
+  const oran = AYARLAR.imlecYumusatmaOrani * kilit;
+  durum.sanalImlecX += (hedefX-durum.sanalImlecX)*oran;
+  durum.sanalImlecY += (hedefY-durum.sanalImlecY)*oran;
   arayuz.sanalImlec.style.left = `${durum.sanalImlecX}px`;
   arayuz.sanalImlec.style.top = `${durum.sanalImlecY}px`;
   arayuz.sanalImlec.classList.add("gorunur");
-  durum.enerjiIzi.push({x:durum.sanalImlecX,y:durum.sanalImlecY,zaman:performance.now(),pinch:durum.pinchAktif});
+  durum.enerjiIzi.push({x:durum.sanalImlecX,y:durum.sanalImlecY,zaman:performance.now(),pinch:false});
   if (durum.enerjiIzi.length > 28) durum.enerjiIzi.shift();
   enerjiIziniCiz();
   imlecHedefiniBul(durum.sanalImlecX, durum.sanalImlecY);
@@ -1630,8 +1674,23 @@ function hedefiTemizle() {
   durum.sonHedefEleman = null;
   arayuz.hedefTusDurumu.textContent = "—";
 }
+function hedefiNoktadanBul(x, y) {
+  const dogrudan = document.elementFromPoint(x, y)?.closest(".hedeflenebilir");
+  if (dogrudan) return dogrudan;
+
+  // Tuşlar arasındaki 2-8 px boşluk ve 6 px kırpılmış köşeler imleci hedefsiz
+  // bırakıyordu; hedef her kaybolduğunda kararlılık sayacı sıfırlandığı için
+  // pinch çoğu zaman boşa gidiyordu. Nokta ıskalarsa çevresi taranır.
+  const r = AYARLAR.hedefYakalamaYaricapi;
+  for (const [dx, dy] of [[0,-r],[0,r],[-r,0],[r,0],[-r,-r],[r,-r],[-r,r],[r,r]]) {
+    const aday = document.elementFromPoint(x + dx, y + dy)?.closest(".hedeflenebilir");
+    if (aday) return aday;
+  }
+  return null;
+}
+
 function imlecHedefiniBul(x, y) {
-  const yeniHedef = document.elementFromPoint(x,y)?.closest(".hedeflenebilir") || null;
+  const yeniHedef = hedefiNoktadanBul(x, y);
   if (yeniHedef !== durum.sonHedefEleman) {
     durum.sonHedefEleman?.classList.remove("el-hover");
     durum.sonHedefEleman = yeniHedef;

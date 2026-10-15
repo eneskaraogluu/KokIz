@@ -1,11 +1,21 @@
-5.8.0
+5.8.1
 2026-10-15
 
-Hatıra kartının sol kolonuna söz paneli eklendi: altın çerçeveli, kırpılmış köşeli
-cam panel, sol üstte 𐱅 mührü, Cinzel italik metin ve KÖKİZ SÖZÜ etiketi. Dört
-maddelik havuzdan seçim deterministiktir; aynı yazım her zaman aynı sözü verir.
-Seçimde FNV-1a üzerine xorshift-çarpma kapanışı uygulanır; kapanış olmadan söz
-doğrudan İz No'dan tahmin edilebiliyordu.
+Kamerayla yazma belirgin biçimde kolaylaştırıldı. Dört ayrı neden düzeltildi:
 
-Panelin yerini eski düz açıklama paragrafı tutuyordu; o metnin bilgisi kartın alt
-şeridinde zaten vardı.
+1. İmleç kilidi: pinch yapmak işaret parmağı ucunu başparmağa doğru hareket
+   ettiriyor, imleç bu noktayı takip ettiği için tam seçim anında ekranda ~125 px
+   kayıyordu. Parmaklar kapanırken yumuşatma kademeli kısılır, pinch etkinleşince
+   imleç tamamen donar.
+2. Yapışkan hedefleme: tuşlar arasındaki 2-8 px boşluk ve 6 px kırpılmış köşeler
+   imleci hedefsiz bırakıp hedef kararlılık sayacını sıfırlıyordu. Nokta ıskalarsa
+   14 px yarıçap taranır.
+3. Pinch gecikmesi: oran, konum geçmişiyle aynı 4 karelik pencerede yumuşatılıyor
+   ve eşiğin aşılmasını ~160 ms geciktiriyordu. Oran için ayrı 2 karelik pencere.
+4. Boşa giden pinch: tuşa varır varmaz yapılan pinch, hedef henüz kararlı
+   sayılmadığı için tamamen boşa gidiyordu. Hedef artık sonradan yakalanabiliyor;
+   iptal edilen pinch ise bir daha hedef yakalayamaz, güvenlik kuralı korunur.
+
+Eşikler gevşetildi: pinch başlama 0.27 -> 0.33, bırakma 0.40 -> 0.47,
+hedef kararlılık 100 -> 45 ms, cooldown 250 -> 200 ms.
+Hedefi olmayan pinch artık HUD'da bildiriliyor.

@@ -1,6 +1,6 @@
 # KÖKİZ · Etkileşimli Türk Yazı Duvarı — Teknik Şartname
 
-Bu belge projenin **mevcut** halini tanımlar. Sürüm 5.8.0 · 15 Ekim 2026.
+Bu belge projenin **mevcut** halini tanımlar. Sürüm 5.8.1 · 15 Ekim 2026.
 
 KÖKİZ, Türk Devletleri Teşkilatı'nın 29–30 Ekim 2026 Ankara etkinliği için hazırlanmış
 temassız bir dijital kültür deneyimidir. Sıradan bir web sayfası değil, sergi
@@ -122,6 +122,8 @@ KokIz/
 ├── VERSION.txt             sürüm ve değişiklik notu
 ├── baslat.bat              Windows başlatıcı; baslat.ps1'i çağırır
 ├── baslat.ps1              Node denetimi, port denetimi, tarayıcı açma
+├── test/
+│   └── pinch-testi.js      kamerasız pinch seçim testi
 ├── assets/
 │   ├── tdt-logo.png
 │   └── flags/              sekiz özgün bayrak SVG'si ve kaynak belgesi
@@ -298,6 +300,18 @@ Hedef tespiti `document.elementFromPoint()` ile yapılır ve en yakın `.hedefle
 öğeye çıkılır. Bir öğenin kamera imleciyle seçilebilir olması için bu sınıfı taşıması
 gerekir.
 
+**Yapışkan hedefleme.** Nokta hiçbir hedefe denk gelmezse çevresinde
+`hedefYakalamaYaricapi` (14 px) kadar bir tarama yapılır. Klavye tuşları arasındaki
+2–8 px boşluk ve 6 px kırpılmış köşeler imleci hedefsiz bırakıyor, bu da hedef
+kararlılık sayacını sürekli sıfırlayarak pinch'i boşa çıkarıyordu.
+
+**İmleç kilidi.** Pinch yapmak işaret parmağı ucunu başparmağa doğru hareket ettirir;
+imleç bu noktayı takip ettiği için tam seçim anında ekranda ~125 px (iki tuş genişliği)
+kayabilir. Bu yüzden parmaklar kapanırken yumuşatma oranı `imlecKilitlenmeGucu` (0.85)
+ile kademeli olarak kısılır ve pinch etkinleştiği anda imleç tamamen dondurulur. Pinch
+boyunca hedef yeniden hesaplanmaz; "pinch başladığı hedefte bitmeli" kuralı böylece
+kendiliğinden sağlanır.
+
 ---
 
 # 10. PINCH İLE SEÇİM
@@ -316,19 +330,32 @@ landmark 0 el bileği, landmark 9 orta parmak MCP eklemidir.
 
 | Parametre | Değer | Amaç |
 | --- | --- | --- |
-| `pinchBaslamaEsigi` | 0.27 | pinch başlar |
-| `pinchBirakmaEsigi` | 0.40 | pinch biter |
-| `pinchCooldownSuresi` | 250 ms | ardışık yanlış seçimi engeller |
-| `hedefKararSuresi` | 100 ms | hedef kararlı sayılır |
+| `pinchBaslamaEsigi` | 0.33 | pinch başlar |
+| `pinchBirakmaEsigi` | 0.47 | pinch biter |
+| `pinchCooldownSuresi` | 200 ms | ardışık yanlış seçimi engeller |
+| `hedefKararSuresi` | 45 ms | hedef kararlı sayılır |
 | `pinchDogrulamaSuresi` | 70 ms | pinch teyit süresi |
+| `pinchPencereBoyutu` | 2 kare | pinch oranı yumuşatma penceresi |
 
-İki ayrı eşik (hysteresis) yanlış çift seçimleri azaltır. Pinch oranı da 4 kare
-üzerinden yumuşatılır.
+İki ayrı eşik (hysteresis) yanlış çift seçimleri azaltır.
+
+Pinch oranı, konum geçmişinden **ayrı** ve daha kısa bir pencerede yumuşatılır. Dört
+karelik ortak pencere, parmaklar kapandıktan sonra eşiğin aşılmasını ~160 ms
+geciktiriyordu; teyit süresiyle birlikte seçim hissedilir biçimde gecikiyordu. İki kare
+titremeyi yine bastırır ve gecikmeyi yarıya indirir.
 
 Kritik kural: **pinch'in başladığı hedef ile seçimin gerçekleştiği hedef aynı
-olmalıdır.** Pinch sırasında imleç başka tuşa kayarsa seçim iptal edilir. Bir pinch
-hareketi yalnızca bir seçim üretir; parmaklar birleşik tutulduğunda harf tekrar
-yazılmaz.
+olmalıdır.** Pinch sırasında imleç başka tuşa kayarsa seçim iptal edilir ve o pinch bir
+daha hedef yakalayamaz (`durum.pinchIptalEdildi`). Bir pinch hareketi yalnızca bir seçim
+üretir; parmaklar birleşik tutulduğunda harf tekrar yazılmaz.
+
+**Boşa giden pinch kurtarma.** Ziyaretçi tuşa varır varmaz pinch yaptığında hedef henüz
+`hedefKararSuresi` kadar beklememiş olur. Eskiden bu durumda pinch tamamen boşa gider,
+kullanıcı neden bir şey olmadığını anlamazdı. Artık hedef pinch sırasında sonradan
+yakalanabilir; yukarıdaki iptal kuralı bunu güvenlik açığına çevirmez.
+
+Hedefi olmayan bir pinch, HUD'da `Pinch var · hedefe gel` olarak bildirilir; sessizce
+yok sayılmaz.
 
 ---
 
@@ -827,9 +854,23 @@ Her değişiklikten sonra çalıştırılır.
 ```powershell
 npm run check
 npm run vendor:check
+npm run test:pinch
 ```
 
 `vendor:check` çıktısı `vendor/README.md` içindeki kayıtla birebir aynı olmalıdır.
+
+`test:pinch` kamera gerektirmez: `app.js` içindeki gerçek fonksiyonları çıkarıp sahte
+bir klavye DOM'u ve sentetik el landmark'ları üzerinde koşturur. Dokuz senaryoyu
+doğrular — normal seçim, komşu tuşa geçip hemen pinch, gerçekçi parmak kayması, tuşlar
+arası boşluktan seçim, pinch içinde hedef değişiminin iptal edilmesi, basılı tutmanın
+tek seçim üretmesi, ayır-tekrar pinch, hedefsiz alanda seçim olmaması ve seçim
+gecikmesinin 300 ms altında kalması. Dokuzu da geçmelidir.
+
+Pinch davranışı değiştirilirse sonuç eski sürümle karşılaştırılabilir:
+
+```powershell
+node test/pinch-testi.js eski-app.js
+```
 
 ## Temel yazma
 
@@ -947,6 +988,7 @@ güvenilirliği, 3) ekrana sığması, 4) tasarım etkisi, 5) hatıra kartının
 | v5.7.0 | GPL-3.0 lisanslı QRious yerine MIT lisanslı `qrcode-generator`. Kullanılmayan `design-reference.png` kaldırıldı. |
 | v5.7.1 | Bu belge geliştirme promptundan teknik şartnameye çevrildi. |
 | v5.8.0 | Hatıra kartına deterministik söz paneli eklendi. |
+| v5.8.1 | Kamerayla yazma kolaylaştırıldı: imleç kilidi, yapışkan hedefleme, kısaltılmış pinch gecikmesi. |
 
 ---
 
