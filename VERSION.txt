@@ -1,8 +1,11 @@
-5.7.1
+5.8.0
 2026-10-15
 
-PROJECT_PROMPT.md bir geliştirme promptundan teknik şartnameye çevrildi.
-28 bölüm, kodla doğrulanmış sayısal sabitler ve tam rune tablosu içerir.
-Eski belgedeki rune tablosu 17 yerde kodla çelişiyordu (E ve Ü yanlış,
-kalın/ince çiftleri tek biçim gösterilmiş, birleşik işaretler eksikti).
-Uygulanmayan "Söz paneli" bilinen boşluk olarak kayda geçti.
+Hatıra kartının sol kolonuna söz paneli eklendi: altın çerçeveli, kırpılmış köşeli
+cam panel, sol üstte 𐱅 mührü, Cinzel italik metin ve KÖKİZ SÖZÜ etiketi. Dört
+maddelik havuzdan seçim deterministiktir; aynı yazım her zaman aynı sözü verir.
+Seçimde FNV-1a üzerine xorshift-çarpma kapanışı uygulanır; kapanış olmadan söz
+doğrudan İz No'dan tahmin edilebiliyordu.
+
+Panelin yerini eski düz açıklama paragrafı tutuyordu; o metnin bilgisi kartın alt
+şeridinde zaten vardı.

@@ -1,6 +1,6 @@
 # KÖKİZ · Etkileşimli Türk Yazı Duvarı — Teknik Şartname
 
-Bu belge projenin **mevcut** halini tanımlar. Sürüm 5.7.1 · 15 Ekim 2026.
+Bu belge projenin **mevcut** halini tanımlar. Sürüm 5.8.0 · 15 Ekim 2026.
 
 KÖKİZ, Türk Devletleri Teşkilatı'nın 29–30 Ekim 2026 Ankara etkinliği için hazırlanmış
 temassız bir dijital kültür deneyimidir. Sıradan bir web sayfası değil, sergi
@@ -523,7 +523,7 @@ TDT logosu, `TÜRK DEVLETLERİ TEŞKİLATI`, `29–30 EKİM 2026 · ANKARA`,
 ## Orta katman
 
 - **Sol:** `LATİN ALFABESİ` başlığı altında kullanıcının metni, `KÖK TÜRK YAZISI`
-  başlığı altında karşılığı ve kısa bir açıklama metni.
+  başlığı altında karşılığı ve altında **söz paneli** (aşağıya bakınız).
 - **Merkez:** dijital Orhun taşı, kullanıcının işaretleri taş üzerinde, holografik
   halkalar ve bozkır/kozmik atmosfer.
 - **Sağ:** dijital iz paneli — kişisel tamga canvas'ı, ülke mührü, İz No ve rune şeridi.
@@ -544,6 +544,35 @@ cihazda aynı kart üretilir.
 
 Uzun adlar dört ölçek kademesiyle düzenlenir (`kisa`, `orta`, `uzun`, `cok-uzun`;
 eşikler 8, 12 ve 18 harf). Taşın alt yazısı kelimeleri ayrı satırlara dağıtır.
+
+## Söz paneli
+
+Kartın sol kolonunun altında, altın çerçeveli ve kırpılmış köşeli cam bir panelde
+kültürel bir söz yer alır. Panelin sol üst köşesinde `𐱅` mührü çerçeveyi keser;
+altında `KÖKİZ SÖZÜ` etiketi bulunur. Metin Cinzel italik ile dizilir.
+
+Söz havuzu dört maddedir:
+
+```text
+Bir isim değişir, kök aynı kalır.
+Yazı değişir, hafıza kalır.
+Geçmişin izi, bugünün sözü olur.
+Bir harf, bin yıllık bir yankıdır.
+```
+
+Seçim **deterministiktir**: aynı yazım her zaman aynı sözü verir, böylece kart
+yeniden üretildiğinde veya e-posta ile gönderildiğinde söz değişmez. Boşluklar
+yok sayılır, yani `ENES KARA` ile `ENESKARA` aynı sözü alır.
+
+Seçim FNV-1a karmasına `söz|` tuzu eklenerek yapılır, ardından xorshift-çarpma
+kapanışı uygulanır. Bu kapanış zorunludur: FNV-1a'nın alt bitleri yalnızca kendi
+alt bitlerine bağlı ilerlediği için (çarpan tek sayı) `karma % 4` doğrudan iz
+numarasının alt bitlerinden türetilebilir hale gelir ve söz, İz No'dan tahmin
+edilebilir olur. Kapanış olmadan 500 örnekte örtüşme %100, kapanışla dağılım
+bağımsızdır (4000 örnekte %24.8–25.3).
+
+Panel uzun adlarda `uzun` ve `cok-uzun` ölçek kademelerinde küçülür; dışa aktarma
+yüzeyinde taşma yapmaz.
 
 ## İz No ve kişisel tamga
 
@@ -917,15 +946,15 @@ güvenilirliği, 3) ekrana sığması, 4) tasarım etkisi, 5) hatıra kartının
 | v5.6.0 | Çevrimdışı kiosk: bütün bağımlılıklar `vendor/` altına alındı. Yol denetimi açığı kapatıldı, iç belge web'den engellendi, gönderim sınırı 20'ye çıktı. |
 | v5.7.0 | GPL-3.0 lisanslı QRious yerine MIT lisanslı `qrcode-generator`. Kullanılmayan `design-reference.png` kaldırıldı. |
 | v5.7.1 | Bu belge geliştirme promptundan teknik şartnameye çevrildi. |
+| v5.8.0 | Hatıra kartına deterministik söz paneli eklendi. |
 
 ---
 
 # 28. BİLİNEN BOŞLUKLAR
 
-Şartnamenin erken sürümlerinde tanımlanan ama uygulanmayan tek öğe, ana sahnenin sağ
-kolonunda planlanan **"Söz" panelidir** (bir metin havuzundan seçilen kültürel
-aforizmaları gösteren altın çerçeveli HUD paneli). O alan kamera HUD paneline
-ayrılmıştır ve kamera deneyimin merkezinde olduğu için orada kalması gerekir.
+Bilinen boşluk yoktur.
 
-Söz paneli ileride istenirse hatıra kartının orta katmanına veya üst sahneye
-eklenebilir; mevcut düzende ana sahnede yeri yoktur.
+Şartnamenin erken sürümlerinde ana sahnenin sağ kolonunda planlanan **"Söz" paneli**
+uzun süre uygulanmamış tek öğeydi. Ana sahnedeki o alan kamera HUD paneline
+ayrılmıştır ve kamera deneyimin merkezinde olduğu için orada kalır; panel v5.8.0'da
+hatıra kartının sol kolonuna eklenmiştir (16. bölüm).

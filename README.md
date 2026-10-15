@@ -12,7 +12,9 @@ KÖKİZ, Türk Devletleri Teşkilatı'nın 29–30 Ekim 2026 Ankara etkinliği i
 6. Ziyaretçi e-posta adresini girer ve kişisel hatıra kartını açar.
 7. **E-postama Gönder** düğmesi kartı PNG üretir; backend görseli Resend üzerinden e-posta gövdesinde tam kart ve indirilebilir PNG olarak gönderir.
 8. Kart ayrıca cihaza indirilebilir veya Web Share destekleyen cihazlarda paylaşılabilir.
-9. İsimden deterministik bir kişisel tamga üretilir; anonim iz, seçilen ülkenin renk ve desen kümesi içinde büyüyen **Ortak Hafıza Göğü**ne eklenir.
+9. Kartın sol kolonunda, isimden deterministik seçilen kültürel bir söz altın
+   çerçeveli bir panelde görünür; aynı yazım her zaman aynı sözü verir.
+10. İsimden deterministik bir kişisel tamga üretilir; anonim iz, seçilen ülkenin renk ve desen kümesi içinde büyüyen **Ortak Hafıza Göğü**ne eklenir.
 
 Seçilen kök coğrafya hatıra kartında küçük bir mühür olarak görünür. Gökyüzünde sekiz ülke kendi ışık rengine ve yörünge desenine sahiptir; aktif ülke kümelerinin temsilci yıldızları ortak hafızayı simgeleyen altın bağlarla birleşir.
 

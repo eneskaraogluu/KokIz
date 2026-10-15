@@ -39,6 +39,15 @@ const ULKELER = Object.freeze([
 const ULKE_HARITASI = Object.freeze(Object.fromEntries(ULKELER.map(ulke => [ulke.kod, ulke])));
 const BAYRAK_GORSELLERI = new Map();
 
+// Hatıra kartındaki söz, isimden deterministik seçilir: aynı yazım her zaman
+// aynı sözü verir, böylece kart yeniden üretildiğinde değişmez.
+const SOZLER = Object.freeze([
+  "Bir isim değişir, kök aynı kalır.",
+  "Yazı değişir, hafıza kalır.",
+  "Geçmişin izi, bugünün sözü olur.",
+  "Bir harf, bin yıllık bir yankıdır."
+]);
+
 // Unicode Old Turkic bloğundaki Orhon biçimleri kullanılır. Modern kişi adları
 // tarihî Eski Türkçe sözcükler olmadığı için sonuç, çeviri değil fonetik uyarlamadır.
 const KOK_TURK_ORHON = Object.freeze({
@@ -126,7 +135,7 @@ const arayuz = {
   paylasButonu: $("#paylasButonu"), hatiraKarti: $("#hatiraKarti"), kartLatinMetin: $("#kartLatinMetin"),
   kartKokTurkMetin: $("#kartKokTurkMetin"), kartTasRuneleri: $("#kartTasRuneleri"), kartTasLatin: $("#kartTasLatin"), kartIzNo: $("#kartIzNo"),
   kartIzNoOrta: $("#kartIzNoOrta"), kartMailBilgisi: $("#kartMailBilgisi"), qrOnizleme: $("#qrOnizleme"),
-  kartTamga: $("#kartTamga"), kartUlkeMuhru: $("#kartUlkeMuhru"),
+  kartTamga: $("#kartTamga"), kartUlkeMuhru: $("#kartUlkeMuhru"), kartSozu: $("#kartSozu"),
   kartQrBasligi: $("#kartQrBasligi"), kartQrAciklamasi: $("#kartQrAciklamasi"),
   genelQr: $("#genelQr"), bildirim: $("#bildirim"), sanalImlec: $("#sanalImlec"), enerjiIziCanvas: $("#enerjiIziCanvas"),
   ulkeKarsilamaSahnesi: $("#ulkeKarsilamaSahnesi"), ulkeKarsilamaMotifi: $("#ulkeKarsilamaMotifi"),
@@ -586,6 +595,25 @@ function tamgaKodunuOlustur(metin) {
     karma = Math.imul(karma, 16777619);
   }
   return (karma >>> 0).toString(16).toUpperCase().padStart(8, "0");
+}
+
+function sozSec(metin) {
+  let karma = 2166136261;
+  const temiz = `söz|${(metin || "KOKIZ").normalize("NFC").toLocaleUpperCase("tr-TR").replaceAll(" ", "")}`;
+  for (const harf of temiz) {
+    karma ^= harf.codePointAt(0);
+    karma = Math.imul(karma, 16777619);
+  }
+
+  // FNV-1a'nın alt bitleri yalnızca kendi alt bitlerine bağlı ilerler: çarpan tek
+  // sayı olduğu için `karma % 4` doğrudan iz numarasının alt bitlerinden
+  // türetilebilir hale gelir ve söz, iz numarasından tahmin edilebilir olur.
+  // Aşağıdaki xorshift-çarpma kapanışı alt bit yapısını dağıtır.
+  let dagitilmis = karma >>> 0;
+  dagitilmis ^= dagitilmis >>> 15;
+  dagitilmis = Math.imul(dagitilmis, 2246822507) >>> 0;
+  dagitilmis ^= dagitilmis >>> 13;
+  return SOZLER[(dagitilmis >>> 0) % SOZLER.length];
 }
 
 function tamgaCiz(canvas, kod, parlak = false) {
@@ -1241,6 +1269,7 @@ function hatiraKartiniHazirla() {
   arayuz.kartMailBilgisi.textContent = epostaGecerliMi(eposta) ? eposta : "Genel QR";
   arayuz.kartQrBasligi.textContent = epostaGecerliMi(eposta) ? "KİŞİYE ÖZEL QR" : "GENEL QR";
   arayuz.kartQrAciklamasi.textContent = epostaGecerliMi(eposta) ? "Mail taslağını açar" : "TDT resmî sayfasını açar";
+  arayuz.kartSozu.textContent = sozSec(durum.yazilanMetin);
   tasLatinMetniniOlustur(durum.yazilanMetin);
   arayuz.kartTasRuneleri.dataset.columns = String(runeSutunlariniOlustur(durum.yazilanMetin, arayuz.kartTasRuneleri));
   qrOnizlemeyiGuncelle();
