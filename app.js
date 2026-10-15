@@ -1167,15 +1167,57 @@ function mailQrIcerigiOlustur() {
   return `mailto:${eposta}?subject=${konu}&body=${govde}`;
 }
 
+// QR, MIT lisanslı qrcode-generator ile üretilir. Kütüphane yalnızca modül
+// matrisini verdiği için çizim burada yapılır; renkler, boyut ve en az 14 px'lik
+// sessiz alan önceki görünümle aynı kalır.
+const QR_EN_AZ_DOLGU = 14;
+
+function qrYerTutucuCiz(ctx, boyut, mesaj) {
+  ctx.fillStyle = "#f5efd9";
+  ctx.fillRect(0, 0, boyut, boyut);
+  ctx.fillStyle = "#03201d";
+  ctx.font = "bold 12px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(mesaj, boyut / 2, boyut / 2);
+}
+
 function qrOlustur(canvas, icerik, boyut) {
-  if (typeof QRious === "undefined") {
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#f5efd9"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = "#03201d"; ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center";
-    ctx.fillText("QR çevrimdışı", canvas.width/2, canvas.height/2);
+  canvas.width = boyut;
+  canvas.height = boyut;
+  const ctx = canvas.getContext("2d");
+
+  if (typeof qrcode === "undefined") {
+    qrYerTutucuCiz(ctx, boyut, "QR çevrimdışı");
     return;
   }
-  new QRious({element:canvas, value:icerik, size:boyut, level:"M", background:"#ffffff", foreground:"#001b18", padding:14});
+
+  let kod;
+  try {
+    kod = qrcode(0, "M");
+    kod.addData(icerik);
+    kod.make();
+  } catch (hata) {
+    // İçerik en büyük sürüme de sığmazsa kart QR alanı boş kalmaz.
+    console.error("QR üretilemedi.", hata);
+    qrYerTutucuCiz(ctx, boyut, "QR üretilemedi");
+    return;
+  }
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, boyut, boyut);
+
+  const modulSayisi = kod.getModuleCount();
+  const hucre = Math.max(1, Math.floor((boyut - QR_EN_AZ_DOLGU * 2) / modulSayisi));
+  const kenar = Math.round((boyut - hucre * modulSayisi) / 2);
+  ctx.fillStyle = "#001b18";
+  for (let satir = 0; satir < modulSayisi; satir++) {
+    for (let sutun = 0; sutun < modulSayisi; sutun++) {
+      if (kod.isDark(satir, sutun)) {
+        ctx.fillRect(kenar + sutun * hucre, kenar + satir * hucre, hucre, hucre);
+      }
+    }
+  }
 }
 function genelQrOlustur() {
   qrOlustur(arayuz.genelQr, GENEL_QR_ADRESI, 256);

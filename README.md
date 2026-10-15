@@ -42,16 +42,17 @@ KokIz/
 │   │   ├── hu.svg
 │   │   ├── kktc.svg
 │   │   └── README.md
-│   ├── tdt-logo.png
-│   └── design-reference.png
+│   └── tdt-logo.png
 ├── vendor/
 │   ├── mediapipe/
 │   │   ├── vision_bundle.mjs
 │   │   └── wasm/
 │   ├── models/
 │   │   └── hand_landmarker.task
+│   ├── fonts/
 │   ├── html2canvas.min.js
-│   ├── qrious.min.js
+│   ├── qrcode-generator.js
+│   ├── qrcode-generator-utf8.js
 │   └── README.md
 ├── index.html
 ├── styles.css
@@ -78,14 +79,14 @@ KokIz/
 - `.env.example`: gizli anahtar içermeyen yapılandırma şablonu.
 - `vendor/`: sürüme sabitlenmiş üçüncü taraf kütüphaneler ve el takip modeli; kaynak, lisans ve
   SHA-256 kayıtları `vendor/README.md` içinde.
-- `assets/design-reference.png`: sanat yönü referansı; doğrudan arka plan olarak kullanılmaz.
 - `assets/flags/`: ülke seçim seremonisinde kullanılan, kaynak bilgileri belgelenmiş özgün bayrak dosyaları.
 
 ## Gereksinimler
 
 - Node.js 18 veya daha yeni sürüm
 - Kamera destekli Chrome ya da Edge
-- İnternet bağlantısı **gerekmez**: MediaPipe, el takip modeli, QRious ve html2canvas `vendor/`
+- İnternet bağlantısı **gerekmez**: MediaPipe, el takip modeli, qrcode-generator, html2canvas ve
+  yazı tipleri `vendor/`
   içinde sürüme sabitlenmiş olarak bulunur (bkz. `vendor/README.md`)
 - Gerçek e-posta gönderimi için Resend hesabı, API anahtarı ve doğrulanmış gönderen alan adı/adresi
 
@@ -199,8 +200,12 @@ E-posta alanı odaktayken fiziksel klavye KÖKİZ metnini değiştirmez.
 
 ## Teknik notlar
 
-- MediaPipe Tasks Vision `0.10.35`, el takip modeli (HandLandmarker float16/1), QRious `4.0.2` ve
-  html2canvas `1.4.1` `vendor/` klasöründen yerel olarak sunulur; kiosk çevrimdışı çalışır.
+- MediaPipe Tasks Vision `0.10.35`, el takip modeli (HandLandmarker float16/1),
+  qrcode-generator `2.0.4` ve html2canvas `1.4.1` `vendor/` klasöründen yerel olarak sunulur;
+  kiosk çevrimdışı çalışır. Bütün bağımlılıklar MIT, Apache-2.0 veya OFL-1.1 lisanslıdır.
+- QR kodu `qrcode-generator` yalnızca modül matrisi ürettiği için Canvas 2D ile çizilir;
+  renkler, boyut ve en az 14 px'lik sessiz alan korunur. UTF-8 eklentisi yüklenir, böylece
+  Türkçe karakter içeren e-posta adresleri QR içinde bozulmadan kodlanır.
   Kaynak adresleri, lisanslar ve SHA-256 özetleri `vendor/README.md` içinde kayıtlıdır.
 - `vendor/` altındaki dosyalar sürüme sabitlendiği için uzun süreli önbelleğe alınır
   (`immutable`); uygulama dosyaları her açılışta yeniden okunur (`no-cache`).

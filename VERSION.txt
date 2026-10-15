@@ -1,12 +1,9 @@
-5.6.0
+5.7.0
 2026-10-15
 
-Çevrimdışı kiosk: MediaPipe Tasks Vision, el takip modeli, QRious ve html2canvas
-vendor/ altına sürüme sabitlenerek alındı; çalışma anında hiçbir harici istek kalmadı.
-Hatıra kartı gönderim sınırı dakikada 5'ten 20'ye çıkarıldı (kiosk'ta tüm ziyaretçiler
-aynı yerel adresten gelir). vendor/ içeriği immutable önbelleğe alınır.
+Lisans: GPL-3.0 lisanslı QRious, MIT lisanslı qrcode-generator 2.0.4 ile değiştirildi.
+Artık bütün bağımlılıklar MIT, Apache-2.0 veya OFL-1.1 kapsamında. QR çizimi Canvas 2D
+ile yapılır; renk, boyut ve sessiz alan korunur. UTF-8 eklentisi Türkçe karakterli
+e-posta adreslerinin QR içinde bozulmasını engeller.
 
-Güvenlik: statik sunucu yol denetimi artık çözümlenmiş yol üzerinden uygulanır;
-kodlanmış ayraçla kurulan kaçış ("assets/..%2f.env") kapatıldı. İç belge web
-üzerinden engellendi, sürüm bilgisi tek kaynaktan okunur, hız sınırı tablosu budanır,
-başlatıcı .env içindeki PORT değerini kullanır.
+Kullanılmayan assets/design-reference.png (2.8 MB) depodan kaldırıldı.

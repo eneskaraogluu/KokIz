@@ -6,7 +6,8 @@ değiştirilmemiştir ve her biri yayıncının bildirdiği SHA-256 özetiyle do
 
 | Dosya | Sürüm | Lisans | Kaynak |
 | --- | --- | --- | --- |
-| `qrious.min.js` | QRious 4.0.2 | **GPL-3.0** | <https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js> |
+| `qrcode-generator.js` | qrcode-generator 2.0.4 | MIT | <https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode.js> |
+| `qrcode-generator-utf8.js` | qrcode-generator 2.0.4 (UTF-8 eklentisi) | MIT | <https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode_UTF8.js> |
 | `html2canvas.min.js` | html2canvas 1.4.1 | MIT | <https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js> |
 | `mediapipe/vision_bundle.mjs` | @mediapipe/tasks-vision 0.10.35 | Apache-2.0 | <https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/vision_bundle.mjs> |
 | `mediapipe/wasm/*` | @mediapipe/tasks-vision 0.10.35 | Apache-2.0 | <https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm/> |
@@ -55,19 +56,30 @@ alxkWEwqthx2O24gSvvbx84cr39SFhhzIryo35T2Rrw=  mediapipe/wasm/vision_wasm_interna
 Q40f6P9/TZRgJbwhHCkVQ8A32KN4XtTu5g8fUhsjYpY=  mediapipe/wasm/vision_wasm_nosimd_internal.js
 ijCS00x50/V+a6hZIQXoqQ9rB8J4kf/s0UzKQov9PjE=  mediapipe/wasm/vision_wasm_nosimd_internal.wasm
 +8KjAIDDxVcJO13fwzRpgTLrNBBEzO4yLM+LzzYHzeE=  models/hand_landmarker.task
-25ncr0CpJhgbzkUiR3wu/Fkk9sSykRG2qX+upHfJUos=  qrious.min.js
+5SLWQAOzMuKScf3OSZPtOuKTTIlH9BZUvTJN3Pot4wE=  qrcode-generator-utf8.js
+eeyG+ChWAFsciHkFz8z8++w4Icphx/1alS+qX3ePeRw=  qrcode-generator.js
 ```
 
-Bu satırlardan beşi (MediaPipe bundle'ı, iki wasm ikilisi, qrious, html2canvas)
+Bu satırlardan altısı (MediaPipe bundle'ı, iki wasm ikilisi, qrcode-generator'ın iki
+dosyası, html2canvas)
 jsDelivr'in yayımladığı özetlerle birebir aynıdır; font dosyaları Google'ın
 `fonts.gstatic.com` üzerinden sunduğu woff2 kopyalarının özetleridir. `models/hand_landmarker.task` için Google bir
 özet yayımlamaz; yukarıdaki değer indirilen kopyanın kaydıdır ve dosya iki TFLite
 modeli içeren geçerli bir arşiv olarak doğrulanmıştır (`hand_detector.tflite`,
 `hand_landmarks_detector.tflite`).
 
-## Not: QRious lisansı
+## Not: QR kütüphanesi
 
-QRious **GPL-3.0** ile dağıtılır. Proje `package.json` içinde `private: true` olarak
-işaretlidir ve dosya yalnızca kiosk içinde çalıştırılmak üzere tutulmaktadır. Projenin
-kapalı kaynak biçimde üçüncü taraflara dağıtılması gündeme gelirse bu bağımlılığın MIT
-lisanslı bir QR üreticisiyle değiştirilmesi gerekir.
+Proje önceden QRious 4.0.2 kullanıyordu; o kütüphane **GPL-3.0** ile dağıtıldığı için
+MIT lisanslı `qrcode-generator` ile değiştirilmiştir. Böylece bütün bağımlılıklar
+MIT, Apache-2.0 veya OFL-1.1 kapsamına girer ve projenin dağıtımında kopyasol
+yükümlülük kalmaz.
+
+`qrcode-generator` yalnızca modül matrisini üretir; Canvas 2D çizimi `app.js` içindeki
+`qrOlustur()` fonksiyonunda yapılır. Renkler, boyut ve en az 14 px'lik sessiz alan
+QRious sürümüyle aynı tutulmuştur.
+
+`qrcode-generator-utf8.js` eklentisi zorunludur. Kütüphanenin varsayılan
+`stringToBytes` fonksiyonu her karakteri `c & 0xff` ile daraltır; bu durumda `ş`
+(U+015F) sessizce `_` (0x5F) olur ve Türkçe karakter içeren bir e-posta adresi QR
+içinde bozulurdu. Eklenti `stringToBytes`'ı UTF-8 sürümüyle değiştirerek bunu önler.
