@@ -1,962 +1,931 @@
-# KÖKİZ PROJESİ İÇİN DETAYLI GELİŞTİRME PROMPTU
+# KÖKİZ · Etkileşimli Türk Yazı Duvarı — Teknik Şartname
 
-Sen kıdemli bir frontend geliştiricisi, yaratıcı etkileşim tasarımcısı ve gerçek zamanlı bilgisayarlı görü entegrasyon mühendisisin. Elindeki proje **KÖKİZ · Etkileşimli Türk Yazı Duvarı** adlı, fiziksel bir etkinlikte büyük ekranda/stand ekranında kullanılacak interaktif bir web deneyimidir.
+Bu belge projenin **mevcut** halini tanımlar. Sürüm 5.7.1 · 15 Ekim 2026.
 
-Bu projeyi geliştirirken sıradan bir web sitesi gibi davranma. Bu bir **sergi enstalasyonu / dijital kültür deneyimi / temassız etkileşimli kiosk** olarak tasarlanıyor.
+KÖKİZ, Türk Devletleri Teşkilatı'nın 29–30 Ekim 2026 Ankara etkinliği için hazırlanmış
+temassız bir dijital kültür deneyimidir. Sıradan bir web sayfası değil, sergi
+enstalasyonu olarak çalışan bir kiosk uygulamasıdır.
 
-## 1. PROJENİN BAĞLAMI
-
-Etkinlik:
-- Türk Devletleri Teşkilatı
-- Tarih: 29-30 Ekim 2026
-- Yer: Ankara
-
-Proje adı:
-- KÖKİZ
-- Alt başlık: ETKİLEŞİMLİ TÜRK YAZI DUVARI
-
-Ana fikir:
-Katılımcı kameranın karşısına geçer. Sistem elini gerçek zamanlı olarak algılar. İşaret parmağı ekranda bir sanal imleç gibi hareket eder. Kullanıcı sanal Türkçe klavyedeki bir harfin üzerine gelir ve harfi seçmek için **başparmak ile işaret parmağını birbirine yaklaştırıp pinch hareketi yapar**.
-
-Seçilen Latin harfleri ekranda bir isim/kelime oluşturur. Aynı anda bu metnin yaklaşık Kök Türk/Eski Türk harf karşılığı gösterilir ve merkezdeki dijital Orhun kitabesinin üzerine ışıklı rune/harfler halinde işlenir.
-
-Deneyimin sonunda kullanıcı kendisine özel bir **dijital hatıra kartı** oluşturabilir. Hatıra kartı:
-- kullanıcının Latin metnini,
-- Kök Türk karşılığını,
-- dijital Orhun taşını,
-- etkinlik bilgilerini,
-- kişiye özel İz No bilgisini,
-- QR kodunu,
-- kültürel ve sürreal tasarım öğelerini
-
-bir araya getirir.
-
-Kart PNG olarak indirilebilir ve destekleyen cihazlarda Web Share API ile paylaşılabilir.
+Belge kodla çelişmeyecek biçimde tutulur: bir davranış değiştiğinde ilgili bölüm aynı
+değişiklikte güncellenir, `VERSION.txt` ve 27. bölüme kayıt düşülür.
 
 ---
 
-# Ortak Hafıza Göğü ve kişisel tamga · v5.0.0
+# 1. BAĞLAM VE DENEYİM AKIŞI
 
-- Her ad için harf dizisinden deterministik, geometrik ve Canvas tabanlı kişisel tamga üret.
-- Tamgayı hatıra kartındaki dijital iz paneline dahil et; PNG ve e-posta gövdesindeki kartta aynen görünmesini sağla.
-- Üst menüde ve kart modalında `ORTAK HAFIZA` erişimi sun.
-- Tam ekran gökyüzünde anonim izleri turkuaz/altın ışıklar, yakın izleri ise ince bağlantı çizgileriyle göster.
-- Son iz nabızla vurgulansın; ziyaretçi ışığın üzerinde durduğunda iz numarası ve tamga görünür olsun.
-- Backend yalnızca rastgele kayıt kimliği, iz numarası, tamga kodu ve sunucu zamanını kalıcı tutar. İsim, e-posta, kamera görüntüsü ve kart PNG'si koleksiyona yazılmaz.
-- Kayıt dosyası Git dışında ve statik web erişimine kapalı olmalıdır. Aynı kayıt kimliğini çoğaltma ve aşırı istekler engellenmelidir.
-- Efektler mevcut HTML/CSS/Canvas mimarisinde kalmalı; yeni harici paket veya görsel bağımlılığı eklenmemelidir.
+Etkinlik: Türk Devletleri Teşkilatı · 29–30 Ekim 2026 · Ankara
+Proje: KÖKİZ · ETKİLEŞİMLİ TÜRK YAZI DUVARI
+
+Ziyaretçinin yaşadığı akış:
+
+1. Sekiz kök coğrafyadan birini seçer; tam ekran karşılama seremonisi oynar.
+2. Kamerayı başlatır; eli gerçek zamanlı algılanır.
+3. İşaret parmağı sanal imleç olur; başparmakla pinch yaparak harf seçer.
+4. Latin metin, Kök Türk karşılığı ve dijital Orhun kitabesi eşzamanlı oluşur.
+5. Hatıra kartı komutu taş işleme törenini başlatır; işaretler taşa tek tek kazınır.
+6. Kişisel yıldız doğar ve seçilen ülkenin yıldız kümesine uçar.
+7. Hatıra kartı açılır: Latin metin, Kök Türk yazısı, kişisel tamga, ülke mührü,
+   İz No ve QR.
+8. Kart e-posta ile PNG eki olarak gönderilir, cihaza indirilir veya paylaşılır.
+9. Anonim iz Ortak Hafıza Göğü'ne eklenir.
+
+Tasarım ve geliştirme kararlarında ölçüt şudur: *"Bu değişiklik KÖKİZ'i sıradan bir web
+sayfasından çıkarıp etkinlikte insanları durdurup baktıracak bir dijital kültür
+deneyimine dönüştürüyor mu?"* Cevap hayırsa çözüm sadeleştirmek değil, deneyimle daha
+iyi bütünleştirmektir.
 
 ---
 
-# 2. EN ÖNEMLİ TASARIM REFERANSI
+# 2. SANAT YÖNÜ
 
-Projenin ana sanat yönü `assets/design-reference.png` görseliyle belirlenmişti.
+Sanat yönünün bağlayıcı tanımı `styles.css` ve aşağıdaki maddelerdir. Tasarım
+HTML/CSS/Canvas katmanlarıyla üretilir; hazır bir görsel arka plana konup üzerine
+arayüz yerleştirilmez, böylece kullanıcı verisi tasarımla bütünleşir.
 
-Bu dosya v5.7.0'da çalışma ağacından kaldırıldı; kodda hiç kullanılmıyordu ve 2.8 MB
-yer tutuyordu. Görsel git geçmişinde duruyor, gerektiğinde geri alınabilir:
+Korunması gerekenler:
+
+- Derin zümrüt, koyu petrol, turkuaz ve altın paleti. Siyah-boş arayüz görünümü olmaz.
+- Antik Türk kültürü ile ileri teknoloji aynı dünyadaymış gibi görünür.
+- Merkezde anıtsal Orhun taşı; çevresinde turkuaz ve altın ışık halkaları.
+- Kozmik gökyüzü, yıldız parçacıkları, aurora hissi; bozkır ufku ve uzak taş sütunlar.
+- Tamga ve geometrik motiflerden türetilmiş ince dekorasyonlar.
+- Altın çizgili HUD panelleri, hafif holografik parlamalar, veri akışını çağrıştıran
+  ince ışık çizgileri.
+- Oyun arayüzü değil, kültür-sanat enstalasyonu hissi; fotoğraf çekilecek kadar güçlü.
+
+Yapılmayacaklar:
+
+- Arayüzü sade siyah kutulara veya dashboard görünümüne dönüştürmek.
+- Çok sayıda düz gri kart kullanmak, kurumsal sunum estetiğine kaymak.
+- Kamerayı başka bölüme taşıyıp kullanıcıyı sayfayı kaydırmaya zorlamak.
+- Harf seçiminde dwell/bekleme sistemine dönmek.
+- Kök Türk yazısını uzun metinde tek satıra ezmek.
+- Taşı küçük dekoratif bir ikona indirmek.
+- Neon cyberpunk'ı aşırıya kaçırıp Türk kültürünü görünmez yapmak.
+- Rune eşlemesi için akademik doğruluk iddia etmek.
+- QR'ın otomatik e-posta gönderdiğini iddia etmek.
+
+Sanat yönü başlangıçta `assets/design-reference.png` görseliyle belirlenmişti. Dosya
+v5.7.0'da kaldırıldı; kodda hiç kullanılmıyordu ve 2.8 MB yer tutuyordu. Git
+geçmişinde duruyor:
 
 ```powershell
 git show 333d95e:assets/design-reference.png > design-reference.png
 ```
 
-Sanat yönünün bağlayıcı tanımı artık `styles.css` ile aşağıdaki maddelerdir.
-
-Tasarım dili şu özellikleri korumalı:
-
-- Derin zümrüt yeşili, koyu petrol, turkuaz ve altın renk paleti.
-- Siyah ve boş bir arayüz görünümü kesinlikle olmamalı.
-- Antik Türk kültürü ile ileri teknoloji aynı dünyadaymış gibi görünmeli.
-- Merkezde anıtsal bir Orhun taşı / monolit.
-- Monolitin çevresinde ışıklı turkuaz ve altın halkalar.
-- Kozmik gökyüzü, yıldız parçacıkları ve aurora hissi.
-- Bozkır ufku ve uzak taş sütunlar.
-- Türk/tamga/geometrik motiflerinden türetilmiş ince dekorasyonlar.
-- Altın çizgili HUD panelleri.
-- Lüks sergi/enstalasyon hissi.
-- Hafif holografik parlamalar.
-- Veri akışlarını çağrıştıran ince ışık çizgileri.
-- Dijital ama oyun arayüzü gibi değil; kültür-sanat enstalasyonu gibi.
-- Tasarım canlı, katmanlı, etkileyici ve fotoğraf çekilecek kadar güçlü olmalı.
-
-ÖNEMLİ:
-Referans görseli yalnızca arka plan resmi olarak kullanıp üstüne HTML koyma. Tasarımı mümkün olduğunca HTML/CSS katmanlarıyla üret. Böylece dinamik kullanıcı verileri tasarımla doğal biçimde bütünleşsin.
-
 ---
 
 # 3. TEKNOLOJİ YIĞINI
 
-Uygulama v3.0.0'dan beri Node.js backend'i ile çalışır (`server.js`).
+Paket kurulumu gerekmez; `npm install` çalıştırılmaz. Üçüncü taraf kütüphaneler
+`vendor/` altında sürüme sabitlenmiş olarak tutulur.
 
-Kullanılan yapı:
-- HTML5
-- CSS3
-- Vanilla JavaScript
-- MediaPipe Tasks Vision 0.10.35
-- HandLandmarker
-- qrcode-generator 2.0.4 (MIT)
-- html2canvas 1.4.1
-- Web Share API
-- Fullscreen API
-- Clipboard API
-- getUserMedia
+- HTML5, CSS3, çerçevesiz (vanilla) JavaScript
+- Node.js 18+ — yalnızca standart kütüphane (`server.js`)
+- MediaPipe Tasks Vision 0.10.35 + HandLandmarker float16/1 — Apache-2.0
+- qrcode-generator 2.0.4 ve UTF-8 eklentisi — MIT
+- html2canvas 1.4.1 — MIT
+- Cinzel ve Inter yazı tipleri, latin + latin-ext alt kümeleri — OFL-1.1
+- Tarayıcı API'leri: getUserMedia, Canvas 2D, Web Audio, Web Share, Fullscreen,
+  Clipboard, sendBeacon
 
-Python uygulamanın çalışma mantığında kullanılmıyor ve projeyi açmak için de
+Bütün bağımlılıklar MIT, Apache-2.0 veya OFL-1.1 lisanslıdır; dağıtımda kopyasol
+yükümlülük yoktur. Kaynak adresleri, lisanslar ve SHA-256 özetleri `vendor/README.md`
+içinde kayıtlıdır; `npm run vendor:check` bütünlüğü doğrular.
+
+Çalışma anında hiçbir harici ağ isteği yapılmaz. Kiosk internet bağlantısı olmadan tam
+işlevle çalışır; yalnızca gerçek e-posta gönderimi internet gerektirir.
+
+Güçlü bir neden olmadan React/Vue/Next.js gibi çerçevelere geçilmez ve yeni harici
+paket eklenmez.
+
+Python uygulamanın çalışma mantığında kullanılmaz ve projeyi açmak için de
 kullanılamaz: `py -m http.server` statik dosyaları sunar ama `/api/*` uçlarını
-çalıştıramaz, dolayısıyla e-posta teslimi ve Ortak Hafıza çalışmaz.
-
-Uygulama Node.js ile başlatılır:
-
-`npm start`
-
-Uygulama:
-`http://localhost:5500`
-
-adresinden çalıştırılır.
-
-Kamera erişimi localhost üzerinde çalışır.
+çalıştıramaz; e-posta teslimi ve Ortak Hafıza çalışmaz.
 
 ---
 
 # 4. DOSYA YAPISI
 
-Ana yapıyı mümkün olduğunca basit tut:
-
+```text
 KokIz/
-- index.html
-- styles.css
-- app.js
-- server.js
-- package.json
-- .env.example
-- README.md
-- PROJECT_PROMPT.md
-- VERSION.txt
-- baslat.bat
-- baslat.ps1
-- assets/
-  - tdt-logo.png
-  - flags/
-- vendor/
-  - mediapipe/
-  - models/
-  - fonts/
-  - qrcode-generator.js
-  - qrcode-generator-utf8.js
-  - html2canvas.min.js
+├── index.html              kiosk sahnesi, kart ve gökyüzü işaretlemesi
+├── styles.css              bütün sanat yönü ve responsive düzen
+├── app.js                  istemci mantığının tamamı
+├── server.js               statik sunucu ve /api uçları
+├── package.json            Node sürüm şartı; start, check, vendor:check
+├── .env.example            gizli anahtar içermeyen yapılandırma şablonu
+├── .gitattributes          satır sonu ve ikili dosya kuralları
+├── .gitignore
+├── README.md               kurulum ve kullanım belgesi
+├── PROJECT_PROMPT.md       bu şartname
+├── VERSION.txt             sürüm ve değişiklik notu
+├── baslat.bat              Windows başlatıcı; baslat.ps1'i çağırır
+├── baslat.ps1              Node denetimi, port denetimi, tarayıcı açma
+├── assets/
+│   ├── tdt-logo.png
+│   └── flags/              sekiz özgün bayrak SVG'si ve kaynak belgesi
+└── vendor/                 sürüme sabit üçüncü taraf dosyalar
+    ├── mediapipe/
+    │   ├── vision_bundle.mjs
+    │   └── wasm/           SIMD ve nosimd ikilileri
+    ├── models/
+    │   └── hand_landmarker.task
+    ├── fonts/              fonts.css ve dört woff2
+    ├── qrcode-generator.js
+    ├── qrcode-generator-utf8.js
+    ├── html2canvas.min.js
+    └── README.md           kaynak, lisans ve SHA-256 kayıtları
+```
 
-Yeni bir framework eklemek için güçlü bir neden yoksa React/Vue/Next.js gibi frameworklere geçme.
-
----
-
-# 5. ANA EKRANIN MİMARİSİ
-
-Uygulama tam ekranda çalışacak şekilde tasarlanmalıdır.
-
-Ana ekran üç yatay katmana ayrılır.
-
-## Katman A: Kurumsal üst sahne
-
-Burada:
-- Türk Devletleri Teşkilatı logosu
-- TÜRK DEVLETLERİ TEŞKİLATI başlığı
-- 29-30 EKİM 2026
-- KÖKİZ · ETKİLEŞİMLİ TÜRK YAZI DUVARI
-- ana QR
-- tam ekran düğmesi
-
-yer alır.
-
-Logo sıradan biçimde köşeye yerleştirilmemeli.
-Logonun çevresinde:
-- konsantrik halkalar,
-- ışıklı ince çizgiler,
-- küçük Kök Türk runeleri,
-- altın/turkuaz parlamalar
-
-bulunmalıdır.
+`ortak-hafiza.ndjson` çalışma anında oluşur, depoda tutulmaz ve web üzerinden sunulmaz.
 
 ---
 
-## Katman B: Ana sürreal sahne
+# 5. ÇALIŞTIRMA VE YAPILANDIRMA
 
-Bu ekran deneyimin kalbidir.
+En kolay yol `baslat.bat` dosyasına çift tıklamaktır. Başlatıcı Node sürümünü denetler,
+portu doğru KÖKİZ sunucusunun kullanıp kullanmadığını kontrol eder, sunucuyu başlatır
+ve tarayıcıyı açar. Açılacak adres `.env` içindeki `PORT` değerinden okunur.
 
-### Sol bölüm
-Kullanıcının canlı metni bulunur.
-
-Göster:
-- LATİN ALFABESİ
-- kullanıcının yazdığı isim/kelime
-- KÖK TÜRK YAZISI
-- yaklaşık dönüşüm
-- 0/24 karakter sayacı
-
-Kullanıcı yazdıkça metin anında güncellenmelidir.
-
-Uzun metin taşmamalıdır. Gerekirse `clamp()`, dinamik font küçültme veya satır yönetimi uygulanmalıdır.
-
-### Orta bölüm
-Merkezde dev bir dijital Orhun kitabesi bulunur.
-
-Bu monolit:
-- karanlık taş dokulu,
-- altın rune ışıklı,
-- çevresinde turkuaz hologram halkaları bulunan,
-- altındaki platform halkalarında hafif ışık olan,
-- antik ve bilimkurgu estetiğini birleştiren
-
-bir yapıda olmalıdır.
-
-Kullanıcının Kök Türk yazısı taşın üzerine dikey sütunlarla yazılır.
-
-Sütun sistemi:
-- 1-6 karakter: 1 sütun
-- 7-12 karakter: 2 sütun
-- 13-18 karakter: 3 sütun
-- 19-24 karakter: 4 sütun
-
-Amaç uzun kelimeleri tek satırda küçücük yapmak değildir. Uzun yazı geldikçe taş gerçek kitabe hissi verecek biçimde dolmalıdır.
-
-Sütunlar sağdan sola görsel akış göstermelidir.
-
-### Sağ bölüm
-Referans görselindeki gibi estetik bir "Söz" paneli bulunur.
-
-Metin havuzundan seçilen sözlerden biri gösterilir:
-
-- Bir isim değişir, kök aynı kalır.
-- Yazı değişir, hafıza kalır.
-- Geçmişin izi, bugünün sözü olur.
-- Bir harf, bin yıllık bir yankıdır.
-
-Panel:
-- altın çerçeveli,
-- kültürel mühür/tamga detaylı,
-- cam/HUD hissi taşıyan,
-- ancak okunabilir
-
-olmalıdır.
-
----
-
-# 6. KAMERA VE GÖRÜNTÜ İŞLEME
-
-Kamera tasarımdan kopuk, büyük beyaz bir kutu gibi görünmemelidir.
-
-Ana sürreal sahneye entegre küçük fakat net bir HUD paneli olmalıdır.
-
-Kamera panelinde:
-- canlı webcam görüntüsü,
-- MediaPipe el iskeleti,
-- kamera durum göstergesi,
-- algılanan el sayısı,
-- mevcut hedef,
-- pinch yüzdesi,
-- model durumu,
-- el algılama durumu
-
-görülmelidir.
-
-Kamera görüntüsü aynalıdır:
-`transform: scaleX(-1)`
-
-Canvas da aynı şekilde aynalanmalıdır.
-
-Kamera:
-`navigator.mediaDevices.getUserMedia()`
-
-ile açılmalıdır.
-
-Tercih edilen kamera:
-`facingMode: "user"`
-
-İdeal çözünürlük:
-1280x720.
-
-Hata durumları kullanıcıya anlaşılır Türkçe mesajla verilmelidir:
-- NotAllowedError → Kamera izni verilmedi
-- NotReadableError → Kamera başka uygulama tarafından kullanılıyor
-- NotFoundError → Kamera bulunamadı
-
-Kamera durdurulduğunda video trackleri mutlaka `stop()` ile kapatılmalıdır.
-
----
-
-# 7. MEDIAPIPE
-
-Kullanılan paket:
-
-`@mediapipe/tasks-vision@0.10.35`
-
-Paket v5.6.0'dan beri CDN'den değil proje içinden yüklenir (bkz. `vendor/README.md`):
-
-JavaScript:
-`/vendor/mediapipe/vision_bundle.mjs`
-
-WASM:
-`/vendor/mediapipe/wasm`
-
-Model:
-`/vendor/models/hand_landmarker.task`
-
-HandLandmarker ayarları yaklaşık:
-- runningMode: VIDEO
-- numHands: 1
-- minHandDetectionConfidence: 0.62
-- minHandPresenceConfidence: 0.62
-- minTrackingConfidence: 0.62
-
-Model tekrar tekrar yüklenmemeli. Promise/cache mantığı korunmalıdır.
-
----
-
-# 8. SANAL İMLEÇ
-
-MediaPipe landmark 8:
-- işaret parmağı ucu
-
-Sanal imlecin konumunu belirler.
-
-Kamera aynalı olduğu için X koordinatı ekran koordinatına çevrilirken terslenir.
-
-İmleç doğrudan ham koordinata bağlanmamalı.
-Titremeyi azaltmak için smoothing uygulanmalıdır.
-
-Mevcut yaklaşım:
-- birkaç karelik geçmiş tutulur
-- ortalama nokta hesaplanır
-- ekranda lerp benzeri yumuşatma yapılır
-
-`imlecYumusatmaOrani` yaklaşık 0.34.
-
-Kamera kenarlarında ölü alan bırak:
-`kameraKenarPayi ≈ 0.10`
-
-Böylece kullanıcının elini kameranın en uç noktalarına götürmeden ekranın tamamına ulaşması sağlanır.
-
----
-
-# 9. PINCH İLE HARF SEÇİMİ
-
-Eski hover/dwell sistemi kullanılmamalıdır.
-
-Kullanıcı bir harfe gitmek için beklemek zorunda değildir.
-
-Seçim hareketi:
-
-başparmak ucu landmark 4
-+
-işaret parmağı ucu landmark 8
-
-birbirine yaklaştığında yapılır.
-
-Pinch mesafesi doğrudan piksel olarak ölçülmemelidir çünkü el kameraya yaklaşıp uzaklaşır.
-
-Normalize et:
-
-`distance(thumbTip, indexTip) / distance(wrist, middleMCP)`
-
-Yaklaşık eşikler:
-- pinch başlama: 0.27
-- bırakma: 0.40
-
-İki farklı eşik kullanılmasının amacı hysteresis oluşturarak yanlış çift tıklamaları azaltmaktır.
-
-Ayrıca:
-- pinch mesafesini birkaç kare üzerinden yumuşat
-- cooldown yaklaşık 250 ms
-- hedef yaklaşık 100 ms kararlı olmalı
-- pinch başladığı hedef ile seçimin gerçekleştiği hedef aynı olmalı
-
-Bu son kural çok önemlidir.
-Pinch sırasında imleç başka harfe kayarsa yanlış tuş basılmamalıdır.
-
-Bir pinch hareketi yalnızca bir kez seçim üretmelidir.
-
----
-
-# 10. TEMASSIZ KLAVYE
-
-Türkçe sanal klavye:
-
-1. satır:
-Q W E R T Y U I O P Ğ Ü
-
-2. satır:
-A S D F G H J K L Ş İ
-
-3. satır:
-Z X C V B N M Ö Ç
-
-Her tuşta:
-- büyük Latin harf
-- altında küçük Kök Türk karşılığı
-
-gösterilir.
-
-Ayrıca:
-- Sil
-- Boşluk
-- Temizle
-- Kök Türk yazısını kopyala
-- E-posta alanı
-- Hatıra Kartını Oluştur
-
-kontrolleri bulunur.
-
-Fiziksel klavye de çalışmalıdır.
-
-Fiziksel klavye:
-- Backspace → sil
-- Space → boşluk
-- Delete → temizle
-- Türkçe/Latin harf → metne ekle
-- Escape → açık hatıra kartını kapat
-
-E-posta inputu focus halindeyken fiziksel klavye eventleri KÖKİZ metnine harf eklememelidir.
-
----
-
-# 11. KÖK TÜRK DÖNÜŞÜMÜ
-
-Mevcut dönüşüm tarihsel olarak tam dilbilimsel transliterasyon iddiasında değildir.
-
-Bu bir görsel/etkileşimli prototip eşlemesidir.
-
-Mevcut harita korunmalıdır:
-
-A 𐰀
-B 𐰉
-C/Ç 𐰲
-D 𐰑
-E 𐰅
-F 𐰯
-G 𐰏
-Ğ 𐰍
-H 𐰴
-I/İ 𐰃
-J/Y 𐰖
-K 𐰚
-L 𐰠
-M 𐰢
-N 𐰤
-O/U 𐰆
-Ö 𐰇
-Ü 𐰈
-P 𐰯
-Q/X 𐰴
-R 𐰼
-S 𐰾
-Ş 𐱁
-T 𐱅
-V/W 𐰉
-Z 𐰔
-Space ·
-
-Kodda bunu "historically exact" olarak tanıtma.
-
-Daha sonra akademik doğrulama yapılabilecek şekilde harita kolay değiştirilebilir kalmalıdır.
-
----
-
-# 12. HATIRA KARTI
-
-Hatıra kartı projenin en önemli "wow" çıktılarından biridir.
-
-Ana sitenin sıradan ekran görüntüsü gibi görünmemeli.
-
-Referans görseldeki premium kültürel poster hissini taşımalıdır.
-
-Kart 3 yatay katmandan oluşur.
-
-## Üst katman
-- TDT logosu
-- TÜRK DEVLETLERİ TEŞKİLATI
-- 29-30 EKİM 2026
-- KÖKİZ · ETKİLEŞİMLİ TÜRK YAZI DUVARI
-- kişiye özel QR
-- Kök Türk rune detayları
-- altın/turkuaz ışık çizgileri
-
-## Orta katman
-- sol: Latin isim
-- altında Kök Türk yazısı
-- merkez: büyük dijital Orhun monoliti
-- kullanıcının runeleri taş üzerinde
-- holografik halkalar
-- bozkır/kozmik atmosfer
-- sağ: Söz paneli
-
-## Alt katman
-Üç premium bilgi kartı:
-1. ETKİNLİK
-   - 29-30 Ekim 2026 · Ankara
-
-2. İZ NO
-   - KIZ-xxxx
-
-3. MAIL QR
-   - kullanıcı e-postası veya Genel QR
-
-İz numarası kullanıcının metninden deterministik üretilebilir.
-
-Kartın tasarım oranı:
-1536 x 1024 hissinde 3:2'ye yakın yatay poster.
-
----
-
-# 13. QR MANTIĞI
-
-MIT lisanslı `qrcode-generator` 2.0.4 kullanılır. Kütüphane yalnızca modül matrisi
-ürettiği için Canvas 2D çizimi `qrOlustur()` içinde yapılır.
-
-Mevcut frontend sürümünde QR doğrudan sunucudan mail göndermez.
-
-QR içeriği `mailto:` bağlantısıdır.
-
-QR okutulduğunda:
-- ilgili e-posta adresi,
-- konu,
-- KÖKİZ metni,
-- Kök Türk karşılığı,
-- etkinlik bilgisi,
-- İz No
-
-hazır mail taslağı olarak açılır.
-
-E-posta girilmemişse genel `mailto:` taslağı açılır.
-
-ÖNEMLİ:
-"QR okutulunca otomatik olarak mail gönderilir" gibi yanlış bir davranış/iddia oluşturma.
-
-Gerçek otomatik mail sistemi istenirse bunun backend gerektirdiğini belirt.
-
----
-
-# 14. PNG İNDİRME
-
-Hatıra kartı `html2canvas` ile DOM üzerinden PNG'ye dönüştürülür.
-
-Amaç:
-ekrandaki kart ve indirilen kart mümkün olduğunca aynı görünsün.
-
-Kullan:
-- scale: 2
-- useCORS: true
-- backgroundColor uygun koyu renk
-- logging: false
-
-PNG dosya adı örneği:
-`ENES_KOKIZ_Hatira.png`
-
----
-
-# 15. PAYLAŞIM
-
-Web Share API kullanılabilir.
-
-Destekleyen cihazlarda PNG File nesnesi paylaşılmalıdır.
-
-Desteklemeyen masaüstü tarayıcılarda uygulama çökmemeli.
-Kullanıcıya kısa mesaj verilmelidir.
-
----
-
-# 16. FULLSCREEN
-
-Etkinlikte kiosk/sergi deneyimi için tam ekran önemlidir.
-
-Fullscreen API kullanılmalıdır.
-
-Buton metni duruma göre:
-- ⛶ TAM EKRAN
-- × TAM EKRANDAN ÇIK
-
-olarak güncellensin.
-
----
-
-# 17. RESPONSIVE / EKRANA SIĞMA
-
-Ana hedef ekranlar:
-- 1920x1080
-- 1600x900
-- 1366x768
-
-Özellikle 1366x768 laptop ekranında sayfa mümkün olduğunca scroll istemeden çalışmalıdır.
-
-Ana ekran için yaklaşık:
-- üst kurumsal: %23-25
-- orta deneyim: %50
-- alt klavye: %25-27
-
-kullanılabilir.
-
-CSS'te:
-- `clamp()`
-- `vw`
-- `vh`
-- `minmax()`
-- grid
-- media query
-
-kullan.
-
-Ama küçük ekran uyumu yaparken büyük ekran tasarımının anıtsallığını bozma.
-
----
-
-# 18. PERFORMANS
-
-Etkinlikte uzun süre açık kalacak.
-
-Bu yüzden:
-- her animasyon frame'inde gereksiz DOM oluşturma
-- MediaPipe modelini tekrar yükleme
-- birden çok RAF loop başlatma
-- stop edilmiş kameranın tracklerini açık bırakma
-- her el karesinde ağır görsel render etme
-
-gibi hatalardan kaçın.
-
-MediaPipe analizi yaklaşık 40 ms aralıkla sınırlandırılabilir.
-
-Dekoratif CSS animasyonları mümkün olduğunca transform/opacity ağırlıklı olmalıdır.
-
----
-
-# 19. TASARIMDA YAPILMAMASI GEREKENLER
-
-- Arayüzü sade siyah kutulara dönüştürme.
-- Bootstrap dashboard gibi tasarlama.
-- Çok sayıda düz gri kart kullanma.
-- Tasarımı kurumsal PowerPoint görünümüne sokma.
-- Kamerayı sayfanın başka bölümüne taşıyıp kullanıcıyı scroll ettirme.
-- Harf seçiminde dwell/bekleme sistemine geri dönme.
-- Pinch sırasında hedef değişmişse yanlış tuşa basma.
-- Kök Türk yazısını uzun metinde tek satıra ezme.
-- Monoliti küçük dekoratif ikon haline getirme.
-- Referans görseldeki sürreal atmosferi kaybetme.
-- Neon cyberpunk tasarımı aşırıya kaçırıp Türk kültürünü görünmez hale getirme.
-- Tarihsel olarak doğrulanmamış harita için akademik doğruluk iddia etme.
-- QR'ın otomatik mail gönderdiğini iddia etme.
-
----
-
-# 20. TEST SENARYOLARI
-
-Her değişiklikten sonra şu testleri yap:
-
-## Temel yazma
-1. Uygulamayı aç.
-2. Fiziksel klavyeden ENES yaz.
-3. Latin alanında ENES görünmeli.
-4. Kök Türk alanı güncellenmeli.
-5. Orhun taşı üzerinde rune sütunu görünmeli.
-
-## Uzun kelime
-Şunları test et:
-- ENES
-- TÜRKİYE
-- AZERBAYCAN
-- TÜRKDEVLETLERİ
-- TÜRKDEVLETLERİTEŞKİLATI
-
-Taşta:
-- 1
-- 2
-- 3
-- 4
-
-sütun geçişleri doğru yapılmalı.
-
-Hiçbir rune taşın dışına çıkmamalı.
-
-## Kamera
-1. Kamera Başlat.
-2. Webcam görüntüsü görünmeli.
-3. Model hazır durumuna geçmeli.
-4. El gösterildiğinde landmark iskeleti çizilmeli.
-5. İmleç işaret parmağını takip etmeli.
-
-## Pinch
-1. Harfin üzerine gel.
-2. Pinch yapma.
-3. Harf yazılmamalı.
-4. Baş ve işaret parmağını birleştir.
-5. Harf bir kez yazılmalı.
-6. Parmaklar birleşik tutulduğunda aynı harf sürekli yazılmamalı.
-7. Parmakları ayır ve tekrar pinch yap.
-8. Yeni seçim yapılmalı.
-
-## Yanlış tuş testi
-1. Bir tuş üzerinde pinch başlat.
-2. Pinch kapanmadan elini yan tuşa kaydır.
-3. Yanlış yeni harf basılmamalı.
-
-## Hatıra kartı
-1. Metin yaz.
-2. E-posta gir.
-3. Hatıra kartını aç.
-4. Latin metni doğru olmalı.
-5. Kök Türk metni doğru olmalı.
-6. Taş sütunları doğru olmalı.
-7. İz No görünmeli.
-8. QR oluşmalı.
-9. PNG indirilebilmeli.
-10. PNG tasarımı ekrandaki kartla tutarlı olmalı.
-
----
-
-# 21. ÇALIŞTIRMA
-
-Windows PowerShell:
+Terminalden:
 
 ```powershell
 cd "PROJE_KLASORU"
 npm start
 ```
 
-Chrome:
+Adres `http://localhost:5500`. Önbellek sorununda `Ctrl + Shift + R`.
 
-`http://localhost:5500`
+Kamera yalnızca `localhost` veya güvenli bağlantıda çalışır.
 
-Cache sorunu olursa:
+`.env` değişkenleri (şablon: `.env.example`):
 
-`Ctrl + Shift + R`
+| Değişken | Açıklama |
+| --- | --- |
+| `HOST` | Bağlanılacak arayüz. Varsayılan `127.0.0.1`, yani yalnızca yerel. |
+| `PORT` | Varsayılan `5500`. 1–65535 dışındaysa sunucu başlamaz. |
+| `RESEND_API_KEY` | Resend API anahtarı. Yalnızca sunucuda tutulur. |
+| `KOKIZ_FROM_EMAIL` | Doğrulanmış gönderen adresi. |
+| `KOKIZ_FROM_NAME` | Gönderen adı. Varsayılan `KÖKİZ`. |
+| `KOKIZ_MOCK_EMAIL` | `true` ise gerçek e-posta gönderilmez; yalnızca yerel sınama. |
 
-Alternatif olarak:
-- `baslat.bat`
-- `baslat.ps1`
+`.env` depoya eklenmez. Anahtar ve gönderen adresi tanımsızsa ve test modu kapalıysa
+gönderim düğmesi devre dışı kalır.
 
-kullanılabilir.
+Denetim komutları:
 
----
-
-# 22. GELİŞTİRME HEDEFİ
-
-Bu projeyi geliştirirken asıl amaç sadece çalışan bir form üretmek değildir.
-
-Ziyaretçinin yaşayacağı akış şu hissi vermeli:
-
-1. Kameranın karşısına geçer.
-2. Eli sistem tarafından tanınır.
-3. İşaret parmağıyla dijital dünyaya dokunuyormuş gibi hareket eder.
-4. Pinch ile kendi adını yazar.
-5. Adının bin yıllık başka bir yazı sistemindeki karşılığını görür.
-6. Merkezdeki anıtsal taş, harfleri ışıkla üzerine işler.
-7. Dijital bozkır ve holografik halkalar deneyime tepki verir.
-8. Kullanıcı sonunda kendi kişisel "izini" bir hatıra kartına dönüştürür.
-9. Kartı telefonuna taşır veya paylaşır.
-
-Bu yüzden her tasarım/geliştirme kararında şu soruyu sor:
-
-**"Bu değişiklik KÖKİZ'i sıradan bir web sayfasından çıkarıp fiziksel etkinlikte insanları durdurup baktıracak bir dijital kültür deneyimine dönüştürüyor mu?"**
-
-Cevap hayırsa tasarımı sadeleştirmek yerine deneyimle daha iyi bütünleştir.
+```powershell
+npm run check          # server.js ve app.js sözdizimi
+npm run vendor:check   # vendor/ dosyalarının SHA-256 özetleri
+```
 
 ---
 
-# 23. MEVCUT KODU DEĞİŞTİRİRKEN KURAL
+# 6. ANA EKRAN MİMARİSİ
 
-Mevcut çalışan özellikleri silme.
+Uygulama tam ekranda, dikey kaydırma olmadan çalışacak biçimde tasarlanmıştır. Ekran üç
+yatay katmandan oluşur.
 
-Özellikle şunlar regresyona uğramamalı:
-- kamera
-- MediaPipe
-- el landmark çizimi
-- işaret parmağı imleci
-- pinch
-- sanal klavye
-- fiziksel klavye
-- 24 karakter sınırı
-- Kök Türk dönüşümü
-- dinamik kitabe sütunları
-- QR
-- hatıra modalı
-- PNG indirme
-- Web Share
-- tam ekran
+## Katman A — Kurumsal üst sahne
 
-Bir tasarım düzenlemesi yapıyorsan önce mevcut JavaScript DOM ID'lerini korumaya çalış.
+TDT logosu, `TÜRK DEVLETLERİ TEŞKİLATI` başlığı, `29–30 EKİM 2026 · ANKARA`,
+`KÖKİZ · ETKİLEŞİMLİ TÜRK YAZI DUVARI` alt başlığı ve sağda dört araç:
 
-ID değiştirmek zorundaysan app.js tarafını aynı değişiklikte güncelle.
+- genel QR — TDT resmî sayfası
+- `✦ HAFIZA` — Ortak Hafıza Göğü
+- `♫ SES AÇIK` / `♩ SES KAPALI`
+- `⛶ TAM EKRAN` / `× TAM EKRANDAN ÇIK`
 
----
+Logo köşeye sıradan biçimde yerleştirilmez; çevresinde konsantrik halkalar, ışıklı ince
+çizgiler, küçük Kök Türk runeleri ve altın/turkuaz parlamalar bulunur.
 
-# 24. ÇIKTI BEKLENTİSİ
+## Katman B — Ana sahne, üç kolon
 
-Kod değişikliği istendiğinde:
-- yarım snippet verme,
-- "şu satırın altına ekle" mantığıyla bırakma,
-- değişen dosyaların tam ve çalışır halini sağla.
+**Sol: canlı metin paneli.** `01 / CANLI İZ` kodu, kök coğrafya seçim ızgarası,
+`LATİN ALFABESİ` çıktısı, `KÖK TÜRK YAZISI` çıktısı (sağdan sola), `0 / 24` sayacı ve
+anlık İz No. Metin yazıldıkça anında güncellenir. Uzun metin taşmaz: yazı alanı 11 ve
+18 karakter eşiklerinde `clamp()` ile küçülür.
 
-Kod okunabilir ve Türkçe fonksiyon/ID adlandırma sistemini mümkün olduğunca korusun.
+**Orta: dijital Orhun kitabesi.** Karanlık taş dokulu, altın rune ışıklı, çevresinde
+turkuaz hologram halkaları ve platform ışıkları olan anıt. Kök Türk yazısı taşın
+üzerine dikey sütunlarla işlenir (13. bölüm).
 
-Proje etkinlikte demo edileceği için öncelik sırası:
+**Sağ: kamera HUD paneli.** `02 / GÖRÜNTÜ İŞLEME` kodu, canlı vizör, el iskeleti, pinch
+ölçeri ve sistem durumları (7. bölüm).
 
-1. Çalışması
-2. Kamera/pinch güvenilirliği
-3. Ekrana sığması
-4. Tasarım etkisi
-5. Hatıra kartının kalitesi
-6. Kod temizliği
+## Katman C — Kontrol konsolu
 
-Bu bağlamı kaybetmeden projeyi geliştir.
-# Backend entegrasyonu · v3.0.0
+`03 / SANAL ALFABE` klavyesi ve komut paneli: `SİL`, `BOŞLUK`, `TEMİZLE`, `KOPYALA`,
+hatıra kartı e-posta alanı, `HATIRA KARTINI OLUŞTUR` düğmesi ve durum mesajı satırı.
 
-Bu sürümde projenin birincil teslim özelliği, ziyaretçinin oluşturduğu hatıra kartının girdiği e-posta adresine gerçek PNG eki olarak gönderilmesidir.
+## Tam ekran katmanları
 
-- Arayüz `html2canvas` ile hatıra kartını yüksek çözünürlüklü PNG'ye dönüştürür.
-- `POST /api/hatira-gonder` isteği e-posta adresini, kart metnini, iz numarasını ve PNG verisini Node.js backend'ine aktarır.
-- Backend girdiyi doğrular, hız sınırı uygular ve Resend API üzerinden gönderir.
-- API anahtarı yalnızca `.env` içinde sunucuda bulunur; tarayıcı JavaScript'ine yazılmaz.
-- E-posta adresi ve PNG kalıcı depolamaya alınmaz, veritabanına yazılmaz ve uygulama günlüklerine eklenmez.
-- `.env` hazırlanana kadar gönderim düğmesi devre dışı kalır; `KOKIZ_MOCK_EMAIL=true` yalnızca yerel kabul testi içindir.
-- QR, gerçek e-posta gönderiminin yerine geçmez; ikincil etkinlik bağlantısı/cihaz etkileşimi olarak değerlendirilir.
+Ana ekranın üzerine gerektiğinde dört tam ekran katmanı açılır: kök coğrafya
+karşılaması, taş işleme töreni, hatıra kartı modalı ve Ortak Hafıza Göğü.
 
 ---
 
-# Unicode tabanlı Orhon yazısı · v3.1.0
+# 7. KAMERA VE GÖRÜNTÜ İŞLEME
 
-Kök Türk alanı artık Orhon ve Yenisey karakterlerini karıştıran birebir Latin harf tablosunu kullanmaz. Unicode `U+10C00–U+10C4F` Orhon repertuvarı temel alınır; kalın/ince ünlü sınıfı ünsüz biçimini belirler ve tarihî birleşik işaretler desteklenir. Yatay metin sağdan sola; taş düzeni yukarıdan aşağı ve sütunlar sağdan sola okunur.
+Kamera tasarımdan kopuk beyaz bir kutu değil, sahneye entegre bir HUD panelidir.
 
-Modern kişi adlarının tarihî Eski Türkçe karşılığı kesin olarak üretilemeyeceği için kullanıcıya gösterilen ifade “Unicode Orhon işaretleriyle fonetik ad uyarlaması”dır. Tarihî çeviri veya akademik transkripsiyon iddiası kullanılmaz.
+Panelde canlı görüntü, MediaPipe el iskeleti, kamera durum göstergesi, algılanan el
+sayısı, mevcut hedef, pinch yüzdesi, model durumu, algılama durumu ve seçim durumu
+görünür.
+
+- Kamera `navigator.mediaDevices.getUserMedia()` ile açılır.
+- Tercih `facingMode: "user"`, ideal çözünürlük `1280 × 720`, ses kapalı.
+- Görüntü ve el canvas'ı aynalıdır: `transform: scaleX(-1)`.
+- Kamera durdurulduğunda bütün video track'leri `stop()` ile kapatılır.
+- Akış işletim sistemi veya cihaz tarafından sonlandırılırsa (`ended` olayı) arayüz
+  yanlış "canlı" durumunda kalmaz; durumu kapatıp yeniden başlatma mesajı verir.
+
+Hata mesajları Türkçe ve eyleme dönüktür:
+
+| Hata | Mesaj |
+| --- | --- |
+| `NotAllowedError` | Kamera izni verilmedi. Tarayıcıdaki kamera iznini aç. |
+| `NotReadableError` | Kamera başka bir uygulama tarafından kullanılıyor. |
+| `NotFoundError` | Bu cihazda kullanılabilir kamera bulunamadı. |
+| `OverconstrainedError` | İstenen kamera çözünürlüğü desteklenmiyor. |
+| `SecurityError` | Kamera yalnızca localhost veya güvenli bağlantıda çalışır. |
+
+---
+
+# 8. MEDIAPIPE EL TAKİBİ
+
+Paket `@mediapipe/tasks-vision@0.10.35`, proje içinden yüklenir:
+
+- JavaScript: `/vendor/mediapipe/vision_bundle.mjs`
+- WASM klasörü: `/vendor/mediapipe/wasm`
+- Model: `/vendor/models/hand_landmarker.task`
+
+`FilesetResolver.forVisionTasks()` SIMD desteğine göre `vision_wasm_internal.*` veya
+`vision_wasm_nosimd_internal.*` ikililerini ister; dördü de `vendor/` içinde tutulur.
+
+HandLandmarker ayarları:
+
+- `runningMode: "VIDEO"`, `numHands: 1`
+- `minHandDetectionConfidence`, `minHandPresenceConfidence` ve
+  `minTrackingConfidence`: 0.62
+
+Delege önce `GPU` denenir, başarısız olursa `CPU` ile yeniden açılır. Model yalnızca bir
+kez yüklenir; yükleme sözü önbelleğe alınır, hata durumunda önbellek temizlenerek
+tekrar denenebilir hale gelir.
+
+Algılama `AYARLAR.algilamaAraligi` ile yaklaşık 40 ms'ye sınırlanır ve yalnızca video
+karesi değiştiğinde çalışır.
+
+---
+
+# 9. SANAL İMLEÇ
+
+Landmark 8 (işaret parmağı ucu) imleç konumunu belirler. Kamera aynalı olduğu için X
+koordinatı ekrana çevrilirken terslenir.
+
+İmleç ham koordinata bağlanmaz:
+
+- Son 4 kare (`gecmisPencereBoyutu`) tutulur ve ortalama nokta hesaplanır.
+- Ekranda lerp benzeri yumuşatma uygulanır: `imlecYumusatmaOrani = 0.34`.
+- Kamera kenarlarında `kameraKenarPayi = 0.10` ölü alan bırakılır; kullanıcı elini
+  kameranın en ucuna götürmeden ekranın tamamına ulaşır.
+
+İmleç turkuaz bir enerji izi bırakır; pinch sırasında iz altına döner. İz son 28
+noktayla sınırlıdır ve 560 ms içinde söner.
+
+Hedef tespiti `document.elementFromPoint()` ile yapılır ve en yakın `.hedeflenebilir`
+öğeye çıkılır. Bir öğenin kamera imleciyle seçilebilir olması için bu sınıfı taşıması
+gerekir.
+
+---
+
+# 10. PINCH İLE SEÇİM
+
+Dwell/bekleme sistemi kullanılmaz; kullanıcı harfin üzerinde beklemek zorunda değildir.
+
+Seçim, başparmak ucu (landmark 4) ile işaret parmağı ucunun (landmark 8) birbirine
+yaklaşmasıyla yapılır. El kameraya yaklaşıp uzaklaştığı için mesafe piksel olarak
+ölçülmez, el ölçeğine normalize edilir:
+
+```text
+oran = mesafe(landmark 4, landmark 8) / mesafe(landmark 0, landmark 9)
+```
+
+landmark 0 el bileği, landmark 9 orta parmak MCP eklemidir.
+
+| Parametre | Değer | Amaç |
+| --- | --- | --- |
+| `pinchBaslamaEsigi` | 0.27 | pinch başlar |
+| `pinchBirakmaEsigi` | 0.40 | pinch biter |
+| `pinchCooldownSuresi` | 250 ms | ardışık yanlış seçimi engeller |
+| `hedefKararSuresi` | 100 ms | hedef kararlı sayılır |
+| `pinchDogrulamaSuresi` | 70 ms | pinch teyit süresi |
+
+İki ayrı eşik (hysteresis) yanlış çift seçimleri azaltır. Pinch oranı da 4 kare
+üzerinden yumuşatılır.
+
+Kritik kural: **pinch'in başladığı hedef ile seçimin gerçekleştiği hedef aynı
+olmalıdır.** Pinch sırasında imleç başka tuşa kayarsa seçim iptal edilir. Bir pinch
+hareketi yalnızca bir seçim üretir; parmaklar birleşik tutulduğunda harf tekrar
+yazılmaz.
+
+---
+
+# 11. KLAVYE
+
+Sanal Türkçe klavye üç satırdır:
+
+```text
+Q W E R T Y U I O P Ğ Ü
+A S D F G H J K L Ş İ
+Z X C V B N M Ö Ç
+```
+
+Her tuşta büyük Latin harf ve altında Kök Türk karşılığı gösterilir. Ünsüzün kalın ve
+ince biçimi farklıysa tuş etiketi `𐰴/𐰚` biçiminde iki formu birlikte verir.
+
+Komutlar: `SİL`, `BOŞLUK`, `TEMİZLE`, `KOPYALA` (Kök Türk yazısını panoya kopyalar),
+e-posta alanı ve `HATIRA KARTINI OLUŞTUR`.
+
+Fiziksel klavye de çalışır:
+
+| Tuş | Davranış |
+| --- | --- |
+| Türkçe/Latin harf | metne ekler; yalnızca klavyede tanımlı harfler |
+| `Backspace` | son karakteri siler |
+| `Space` | boşluk ekler |
+| `Delete` | metni temizler |
+| `Escape` | sırayla Ortak Hafıza'yı, töreni, hatıra kartını kapatır |
+
+Metin sınırı 24 karakterdir; aşıldığında bildirim gösterilir. E-posta alanı odakta iken
+fiziksel klavye olayları KÖKİZ metnini değiştirmez.
+
+---
+
+# 12. KÖK COĞRAFYA SEÇİMİ
+
+Ziyaretçi ismini yazmadan önce sekiz kök coğrafyadan birini seçer: Türkiye (TUR),
+Azerbaycan (AZE), Kazakistan (KAZ), Kırgızistan (KGZ), Özbekistan (UZB), Türkmenistan
+(TKM), Macaristan (HUN), Kuzey Kıbrıs Türk Cumhuriyeti (KKTC). Varsayılan Türkiye'dir.
+
+Her ülkenin kendi ışık rengi, gökyüzü yörünge merkezi ve uçuş hedefi vardır. Seçim
+fare, dokunma, klavye odağı ve kamera/pinch ile çalışır.
+
+Seçim yaklaşık iki saniyelik tam ekran karşılama seremonisi başlatır: ülkenin renk
+tonu, kısa mührü, adı, ülkeye göre parametrik değişen geometrik motifi ve dalgalanan
+özgün bayrağı gösterilir. Katman odağı değiştirmez ve işaretçi olaylarını engellemez.
+
+Bayraklar Wikimedia Commons'taki güncel özgün SVG dosyalarıdır, `assets/flags/`
+altında yerel tutulur ve çizimleri değiştirilmez; kumaş hareketi, perspektif, kıvrım ve
+ışık geçişi CSS ile uygulanır. Kaynak ve lisans sayfaları `assets/flags/README.md`
+içinde belgelenir.
+
+Seçilen ülke hatıra kartında kısa kod ve tam ad içeren bir mühür olarak görünür,
+e-posta özetine ve QR metnine dahil edilir.
+
+`prefers-reduced-motion` etkinse karşılama seremonisi atlanır.
+
+---
+
+# 13. KÖK TÜRK YAZI DÖNÜŞÜMÜ
+
+Dönüşüm Unicode `U+10C00–U+10C4F Old Turkic` bloğundaki **Orhon** biçimlerini kullanır.
+Modern kişi adlarının tarihî Eski Türkçe karşılığı kesin olarak üretilemediği için
+kullanıcıya gösterilen ifade "Unicode Orhon işaretleriyle fonetik ad uyarlaması"dır.
+Tarihî çeviri veya akademik transkripsiyon iddiası kullanılmaz; arayüzde bu not görünür.
+
+## Ünlüler, tek biçim
+
+```text
+A 𐰀    E 𐰀    I 𐰃    İ 𐰃
+O 𐰆    U 𐰆    Ö 𐰇    Ü 𐰇
+```
+
+## Bağlama göre değişen ünsüzler
+
+Ünsüzün biçimi, aynı kelimedeki **en yakın ünlünün** sınıfına göre seçilir. Kalın
+ünlüler A I O U, ince ünlüler E İ Ö Ü'dür. Eşit uzaklıkta soldaki ünlü kazanır;
+kelimede ünlü yoksa kalın biçim kullanılır.
+
+| Harf | Kalın | İnce |
+| --- | --- | --- |
+| B, V, W | 𐰉 | 𐰋 |
+| C, Ç | 𐰱 | 𐰲 |
+| D | 𐰑 | 𐰓 |
+| G, Ğ | 𐰍 | 𐰏 |
+| H, K | 𐰴 | 𐰚 |
+| J, Y | 𐰖 | 𐰘 |
+| L | 𐰞 | 𐰠 |
+| N | 𐰣 | 𐰤 |
+| R | 𐰺 | 𐰼 |
+| S | 𐰽 | 𐰾 |
+| Ş | 𐰿 | 𐱁 |
+| T | 𐱃 | 𐱅 |
+
+## Tek biçimli ünsüzler
+
+```text
+F 𐰯    M 𐰢    P 𐰯    Q 𐰴    X 𐰴    Z 𐰔
+```
+
+## Birleşik işaretler
+
+Şu iki harflik diziler tek tarihî işaretle gösterilir ve harf eşlemesinden önce
+denenir:
+
+```text
+LT 𐰡    NT 𐰦    NÇ 𐰨    NY 𐰪    NG 𐰭
+```
+
+## Diğer kurallar
+
+- Kelime ayracı `⁚` işaretidir. Baştaki ve sondaki ayraçlar atılır, ardışık ayraç
+  tekrarlanmaz.
+- Eşlenemeyen karakter `□` ile gösterilir.
+- Yatay çıktı sağdan sola gösterilir (`dir="rtl"`).
+- Metin `NFC` ile normalize edilip `tr-TR` yerelinde büyük harfe çevrilir.
+
+Modern Türkçedeki C, F, H, J, V ve yabancı kökenli adlar tarihî ses sistemiyle birebir
+örtüşmez. Harita `app.js` içindeki `KOK_TURK_ORHON` ve `KOK_TURK_BIRLESIKLER`
+sabitlerinde tutulur ve akademik doğrulama sonrası kolay değiştirilebilir kalır.
 
 Kaynaklar:
 
-- Unicode Old Turkic karakter çizelgesi: https://www.unicode.org/charts/PDF/U10C00.pdf
-- Unicode Standardı 14.8 Old Turkic: https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-14/
+- <https://www.unicode.org/charts/PDF/U10C00.pdf>
+- <https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-14/>
 
 ---
 
-# Sinematik deneyim katmanı · v4.0.1
+# 14. DİJİTAL KİTABE
 
-Hatıra kartı komutu artık kartı anında açmaz. Önce tam ekran dijital taş işleme töreni çalışır: Orhon işaretleri taşa sırayla vurulur, altın/turkuaz parçacıklar yayılır, kişisel iz numarası mühürlenir ve kart perspektifli ışık geçişiyle görünür.
+Kök Türk yazısı taşın üzerine dikey sütunlarla işlenir. Sütun sayısı **işaret** sayısına
+göre belirlenir; Latin harf sayısına göre değil, çünkü birleşik işaretler iki harfi tek
+işarete indirir ve kelime ayracı da bir giriş sayılır:
 
-- Efektler yalnızca Canvas 2D, CSS ve Web Audio API kullanır; yeni harici paket veya ses dosyası yoktur.
-- Web Audio bağlamı ilk doğrudan kullanıcı etkileşiminde `resume()` tamamlanana kadar beklenerek açılır; ses düğmesi yeniden açıldığında işitsel test melodisi verir.
+```text
+sütun = min(4, ceil(işaret sayısı / 6))
+```
 
-# Etkinlik dayanıklılığı · v4.1.0
+1–6 işaret 1 sütun, 7–12 işaret 2 sütun, 13–18 işaret 3 sütun, 19 ve üzeri 4 sütundur.
+Her sütun en çok 6 işaret taşır.
 
-- PNG ve e-posta kartı her cihazda aynı `1440 × 960` çalışma yüzeyinden, `3:2` oranında üretilir.
-- Uzun adlar dört ölçek kademesiyle düzenlenir; taşın alt yazısı kelimeleri ayrı satırlara dağıtır.
-- Kamera akışı işletim sistemi veya cihaz tarafından sonlandırılırsa arayüz bunu algılar, yanlış “canlı” durumunda kalmaz ve yeniden başlatma yönlendirmesi sunar.
-- Mobil klavyenin on iki tuşlu en geniş satırı 320–760 px aralığında ekran genişliğine göre hesaplanır; yatay sayfa taşması engellenir (v4.1.1).
-- Mobil kart önizlemesi ile dışa aktarılan kart aynı `3:2` oranını korur (v4.1.2).
-- Ses kullanıcı tarafından üst menüden kapatılabilir.
-- `TÖRENİ ATLA` ve `Escape` erişilebilir hızlı geçiş sağlar.
-- `prefers-reduced-motion` etkinse tören otomatik atlanır.
-- Kamera imleci turkuaz enerji izi bırakır; pinch sırasında iz altına dönüşür.
-- Tören, PNG kart üretimi veya e-posta içeriğine dahil edilmez; tamamlandıktan sonra temizlenmiş statik hatıra kartı üretilir.
-
----
-
-# Türk dünyası katmanı · v5.1.0
-
-Ziyaretçi ismini yazmadan önce Türkiye, Azerbaycan, Kazakistan, Kırgızistan, Özbekistan, Türkmenistan, Macaristan veya KKTC arasından kök coğrafyasını seçer.
-
-- Seçim fare, dokunma, klavye odağı ve kamera/pinch etkileşimiyle çalışır.
-- Seçilen ülke veya bölge hatıra kartında iki harfli/kısa kod ve tam ad içeren küçük bir mühür olarak görünür.
-- Ortak Hafıza Göğü'nde her ülkenin ayrı ışık rengi, yörünge merkezi ve nokta deseni vardır.
-- Aynı ülkeye ait yıldızlar kendi kümelerinde bağlanır; aktif ülke kümeleri altın bir ortak hafıza hattıyla birbirine ulaşır.
-- Anonim koleksiyon ülke/bölgeyi yalnızca doğrulanmış kısa kod olarak saklar. İsim ve e-posta Ortak Hafıza kaydına eklenmez.
-- Eski ve ülke kodu içermeyen kayıtlar geriye uyumluluk için Türkiye kümesinde gösterilir.
-- E-posta özeti ve QR metni seçilen kök coğrafyayı içerir; PNG kartın üzerindeki mühür dışa aktarıma dahildir.
+- İşaretler yukarıdan aşağı, sütunlar sağdan sola okunur.
+- Amaç uzun kelimeyi tek satırda küçültmek değildir; yazı uzadıkça taş gerçek kitabe
+  hissi verecek biçimde dolar.
+- Hiçbir işaret taşın dışına çıkmaz.
+- Durum satırı sütun sayısını bildirir: `3 SÜTUN · SAĞDAN SOLA İŞLENİYOR`.
+- Metin boşken taşta `KOKIZ` işaretleri ve `İZİNİ TAŞA İŞLE` yer tutucusu görünür.
 
 ---
 
-# Kök coğrafya seremonisi · v5.2.0
+# 15. TAŞ İŞLEME TÖRENİ
 
-Ülke/bölge seçimi, kullanıcıyı yaklaşık iki saniyelik sinematik bir karşılama katmanına geçirir. Katman seçilen ülkenin renk tonunu, kısa mührünü, adını ve diğer ülkelerden ayrılan parametrik geometrik motifini gösterir. Kamera/pinch ile yapılan seçimler de aynı seremoniyi tetikler.
+`HATIRA KARTINI OLUŞTUR` kartı anında açmaz. Önce tam ekran bir tören çalışır: Orhon
+işaretleri taşa sırayla vurulur, kişisel iz mühürlenir, kişisel yıldız doğup seçilen
+ülkenin kümesine uçar ve kart ışık geçişiyle görünür.
 
-Taş işleme töreni tamamlanırken kişisel yıldız merkezde doğar, ülkenin rengine dönüşür ve ışık kuyruğuyla seçilen ülkenin temsilci kümesine uçar. Varış anı ses, küme parlaması ve “ortak gökyüzüne bağlandı” mesajıyla tamamlanır; ardından hatıra kartı açılır.
+Aşamalar sırayla `DİJİTAL İZ HAZIRLANIYOR`, `KİŞİSEL YILDIZ OLUŞTURULUYOR`,
+`ORTAK HAFIZAYA YOLCULUK`, `KÜMELER BİRBİRİNE BAĞLANDI` olarak gösterilir; ilerleme
+çubuğu buna göre dolar.
 
-- Efektler CSS, Canvas 2D ve mevcut Web Audio altyapısıyla üretilir; yeni paket veya görsel dosya eklenmez.
-- Karşılama katmanı odağı değiştirmez ve işaretçi olaylarını engellemez.
-- `prefers-reduced-motion` açıkken karşılama ve uçuş atlanarak hatıra kartı doğrudan hazırlanır.
-- Kart PNG'si ve e-posta görseli animasyondan etkilenmez.
+- Her işaret kendi taş koordinatında altın/turkuaz darbe ışığı, genişleyen halka ve
+  konumsal Canvas kıvılcımı üretir.
+- Işıklı çatlaklar ilerlemeye göre üç kademede dallanır.
+- Arka planda düşük yoğunluklu taş tozu tören boyunca canlı kalır; parçacık sayısı 340
+  ile sınırlıdır ve uzun metinlerde yoğunluk otomatik düşer.
+- Final mührü taş parlaması, çatlak aydınlanması ve sahneye yayılan enerji dalgasıyla
+  tamamlanır.
+- İşaret başına adım süresi 62–115 ms arasında, işaret sayısına göre hesaplanır.
+- Efektler yalnızca Canvas 2D, CSS ve Web Audio kullanır; yeni paket veya ses dosyası
+  yoktur.
+- `TÖRENİ ATLA` düğmesi ve `Escape` tuşu hızlı geçiş sağlar.
+- `prefers-reduced-motion` etkinse tören tamamen atlanır ve kart doğrudan hazırlanır.
+- Tören kapanırken bütün zamanlayıcılar temizlenir, animasyon karesi iptal edilir ve
+  parçacık belleği boşaltılır.
+- Tören PNG karta veya e-posta içeriğine dahil edilmez; tamamlandıktan sonra temizlenmiş
+  statik kart üretilir.
 
 ---
 
-# Özgün bayrak katmanı · v5.3.0
+# 16. HATIRA KARTI
 
-Kök coğrafya seçildiğinde ülkenin özgün bayrağı karşılama sahnesinde dalgalanır.
+Hatıra kartı projenin en önemli çıktısıdır. Ana sahnenin ekran görüntüsü gibi
+görünmemeli, premium bir kültürel poster hissi taşımalıdır. Kart üç yatay katmandan
+oluşur.
 
-- Türkiye, Azerbaycan, Kazakistan, Kırgızistan, Özbekistan, Türkmenistan, Macaristan ve KKTC bayrakları Wikimedia Commons'taki güncel özgün SVG dosyaları olarak proje içine alınır.
-- Dosyalar `assets/flags/` altında yerel tutulur; etkinlik sırasında internet bağlantısı gerekmez.
-- Bayrak görselinin çizimi değiştirilmez. Kumaş hareketi, perspektif, kıvrım ve ışık geçişi CSS animasyonuyla uygulanır.
-- Bayrak alanının erişilebilir etiketi seçilen ülkeye göre güncellenir.
-- `prefers-reduced-motion` etkin cihazlarda dalgalanma animasyonu kapatılır.
-- Kaynak ve lisans sayfaları `assets/flags/README.md` içinde belgelenir.
+## Üst katman
+
+TDT logosu, `TÜRK DEVLETLERİ TEŞKİLATI`, `29–30 EKİM 2026 · ANKARA`,
+`KÖKİZ · ETKİLEŞİMLİ TÜRK YAZI DUVARI` ve sağda QR kodu. QR başlığı e-posta girilmişse
+`KİŞİYE ÖZEL QR`, girilmemişse `GENEL QR` olur.
+
+## Orta katman
+
+- **Sol:** `LATİN ALFABESİ` başlığı altında kullanıcının metni, `KÖK TÜRK YAZISI`
+  başlığı altında karşılığı ve kısa bir açıklama metni.
+- **Merkez:** dijital Orhun taşı, kullanıcının işaretleri taş üzerinde, holografik
+  halkalar ve bozkır/kozmik atmosfer.
+- **Sağ:** dijital iz paneli — kişisel tamga canvas'ı, ülke mührü, İz No ve rune şeridi.
+
+## Alt katman
+
+Üç bilgi kartı:
+
+1. `ETKİNLİK` — 29–30 Ekim 2026 · Ankara
+2. `İZ NO` — `KIZ-xxxx`
+3. `DİJİTAL TESLİM` — kullanıcı e-postası veya "E-posta bekleniyor"
+
+## Ölçü ve ölçekleme
+
+Kart ekranda `3:2` oranında ve genişliğe göre akışkandır. Dışa aktarılırken ekran
+boyutundan bağımsız olarak sabit `1440 × 960` çalışma yüzeyine geçer, böylece her
+cihazda aynı kart üretilir.
+
+Uzun adlar dört ölçek kademesiyle düzenlenir (`kisa`, `orta`, `uzun`, `cok-uzun`;
+eşikler 8, 12 ve 18 harf). Taşın alt yazısı kelimeleri ayrı satırlara dağıtır.
+
+## İz No ve kişisel tamga
+
+İz No kullanıcının metninden deterministik üretilir: FNV-1a karmasının 10000 modülü,
+`KIZ-0000` biçiminde. Aynı yazım her zaman aynı izi verir.
+
+Kişisel tamga da aynı metinden FNV-1a ile üretilen 8 haneli onaltılık koddan Canvas 2D
+ile deterministik çizilir: dikey eksen, dört seviyede dallar ve bir taban üçgeni. Aynı
+yazım aynı tamgayı verir. Tamga karta, PNG'ye ve Ortak Hafıza kaydına dahil edilir.
 
 ---
 
-# Gökyüzü bayrak mühürleri · v5.3.1
+# 17. QR ÜRETİMİ
 
-Ortak Hafıza Göğü'ndeki sekiz ülke/bölge çemberinin merkezinde ilgili özgün bayrak dairesel bir ışık mührü olarak gösterilir.
+MIT lisanslı `qrcode-generator` 2.0.4 kullanılır. Kütüphane yalnızca modül matrisi
+ürettiği için Canvas 2D çizimi `qrOlustur()` içinde yapılır.
 
-- Bayraklar mevcut `assets/flags/` dosyalarından yüklenir; yeni ağ isteği gerekmez.
+- Hata düzeltme seviyesi `M`, sürüm otomatik seçilir.
+- Renkler: zemin `#ffffff`, mürekkep `#001b18`.
+- Hücre boyutu, en az 14 px sessiz alan kalacak biçimde hesaplanır ve kod ortalanır.
+- `qrcode-generator-utf8.js` eklentisi **zorunludur**. Kütüphanenin varsayılan
+  `stringToBytes` fonksiyonu her karakteri `c & 0xff` ile daraltır; bu durumda `ş`
+  (U+015F) sessizce `_` (0x5F) olur ve Türkçe karakter içeren bir e-posta adresi QR
+  içinde bozulur. Eklenti `stringToBytes`'ı UTF-8 sürümüyle değiştirir.
+- Kütüphane yüklenemezse `QR çevrimdışı`, içerik en büyük sürüme sığmazsa
+  `QR üretilemedi` yer tutucusu çizilir; kart QR alanı hiçbir durumda boş kalmaz.
+
+İki QR vardır:
+
+- **Genel QR** (üst sahne, 256 px): TDT resmî sayfası `https://www.turkicstates.org/tr`.
+- **Kart QR'ı** (320 px): geçerli e-posta girilmişse `mailto:` taslağı; girilmemişse
+  genel adres.
+
+`mailto:` taslağı e-posta adresini, konuyu, Latin metni, Kök Türk karşılığını, kök
+coğrafyayı, İz No'yu ve etkinlik bilgisini içerir.
+
+QR gerçek e-posta gönderiminin yerine geçmez; ikincil bir kanaldır. QR okutulduğunda
+yalnızca hazır bir mail taslağı açılır — "QR okutulunca otomatik mail gönderilir" gibi
+bir davranış veya iddia oluşturulmaz.
+
+---
+
+# 18. PNG DIŞA AKTARMA VE PAYLAŞIM
+
+Kart `html2canvas` ile DOM üzerinden PNG'ye dönüştürülür. Amaç ekrandaki kart ile
+indirilen kartın mümkün olduğunca aynı görünmesidir.
+
+Ayarlar:
+
+```js
+{ scale: 1.5, useCORS: true, backgroundColor: "#031b1b",
+  logging: false, imageTimeout: 10000, windowWidth: 1600, windowHeight: 1100 }
+```
+
+`1440 × 960` çalışma yüzeyi ile birlikte sonuç yaklaşık `2160 × 1440` piksel, ~2 MB
+PNG'dir.
+
+Dönüştürme öncesinde `document.fonts.ready` beklenir ve karta
+`kart-disari-aktariliyor` sınıfı eklenerek animasyonlar duraklatılır; iki
+`requestAnimationFrame` sonrası yakalama yapılır.
+
+> Not: Bu çift `requestAnimationFrame` beklemesi, sayfanın görünür olmasını gerektirir.
+> Chrome arka plan sekmelerinde `requestAnimationFrame` çalışmadığı için sekme gizliyken
+> kart üretimi bu adımda bekler. Kiosk'ta sayfa daima görünür olduğundan bu durum
+> oluşmaz; otomatik testlerde sekmenin ön planda olması gerekir.
+
+Dosya adı kullanıcının metninden türetilir: `ENES_KOKIZ_Hatira.png`.
+
+Paylaşım Web Share API ile yapılır; destekleyen cihazlarda PNG bir `File` nesnesi
+olarak paylaşılır. Desteklemeyen masaüstü tarayıcılarda uygulama çökmez, kullanıcıya
+`PNG İNDİR` seçeneği önerilir. Kullanıcı paylaşımı iptal ederse (`AbortError`) hata
+gösterilmez.
+
+---
+
+# 19. E-POSTA TESLİMİ
+
+Projenin birincil teslim özelliği, hatıra kartının ziyaretçinin girdiği adrese gerçek
+PNG eki olarak gönderilmesidir.
+
+Akış: arayüz kartı PNG'ye çevirir, `POST /api/hatira-gonder` isteğiyle e-posta
+adresini, kart metinlerini, iz numarasını, ülke kodunu ve PNG verisini backend'e
+aktarır. Backend girdiyi doğrular, hız sınırı uygular ve Resend API üzerinden gönderir.
+
+E-posta hem gövdesinde kartı tam görsel olarak (`cid` ile gömülü) hem de indirilebilir
+PNG eki olarak taşır; ayrıca düz metin alternatifi içerir.
+
+## API uçları
+
+| Uç | Yöntem | İşlev |
+| --- | --- | --- |
+| `/api/saglik` | GET | servis adı, sürüm, e-posta hazır mı, test modu |
+| `/api/hatira-gonder` | POST | kartı doğrular ve e-posta ile gönderir |
+| `/api/ortak-hafiza` | GET | toplam iz sayısı ve son 600 anonim iz |
+| `/api/ortak-hafiza` | POST | anonim iz ekler |
+| `/api/ortak-hafiza/sifirla` | POST | anonim koleksiyonu boşaltır |
+
+`/api/saglik` gizli anahtarları hiçbir zaman döndürmez.
+
+## Doğrulama ve koruma katmanları
+
+- Aynı kaynak denetimi: `Origin` başlığı varsa `Host` ile eşleşmelidir.
+- E-posta biçimi ve 254 karakter sınırı; istemci ve sunucu aynı kuralı uygular.
+- İz numarası, ülke/bölge kodu ve dosya adı doğrulaması.
+- PNG imza denetimi (`89 50 4E 47 …`) ve 12 MB ham görsel sınırı.
+- 18 MB istek gövdesi sınırı; Ortak Hafıza istekleri için 8 KB.
+- IP başına dakikada 20 kart gönderimi, 30 Ortak Hafıza eklemesi. Kiosk'ta bütün
+  ziyaretçiler aynı yerel adresten geldiği için bu sınır ortaktır.
+- Yinelenen gönderimi azaltan idempotency anahtarı (e-posta, iz ve görselin SHA-256
+  karması).
+- İstek zaman aşımı 30 s, başlık zaman aşımı 35 s.
+
+Sağlayıcı hatası kullanıcıya ayrıntı sızdırmadan bildirilir; sunucu günlüğüne yalnızca
+HTTP durum kodu yazılır.
+
+---
+
+# 20. ORTAK HAFIZA GÖĞÜ
+
+Ortak Hafıza Göğü kalıcı bir etkinlik arşivi değil, **açık kiosk oturumunun** canlı
+görselidir.
+
+Tam ekran gökyüzünde her anonim iz bir ışıktır. Sekiz ülkenin her birinin kendi rengi,
+yörünge merkezi ve nokta deseni vardır; çemberlerin merkezinde ülkenin özgün bayrağı
+dairesel bir ışık mührü olarak görünür. Aynı ülkeye ait yıldızlar kendi kümelerinde ince
+çizgilerle bağlanır, aktif ülke kümeleri altın bir ortak hafıza hattıyla birleşir.
+
+- Son eklenen iz nabızla vurgulanır.
+- Ziyaretçi bir ışığın üzerine geldiğinde iz numarası, ülke ve kişisel tamga görünür.
+- Ülke özeti her ülkenin iz sayısını listeler.
 - Canvas bayrağın en-boy oranını korur, çemberi dolduracak biçimde merkezden kırpar.
-- Ülke rengi dış ışık halkasında, krem tonlu ince çizgi iç çerçevede kullanılır.
-- Bayrak yüklenene kadar kısa ülke kodu renkli bir yedek mühür olarak gösterilir.
-- Yıldızlar ve bağlantılar bayrak mühürlerinden sonra çizilerek görsel hiyerarşi korunur.
+  Bayrak yüklenene kadar kısa ülke kodu renkli bir yedek mühür olarak gösterilir.
+- Yıldızlar ve bağlantılar bayrak mühürlerinden sonra çizilir; görsel hiyerarşi korunur.
+- `prefers-reduced-motion` etkinse nabız animasyonu durur, sahne tek karede çizilir.
+
+## Saklanan veri
+
+Koleksiyonda yalnızca rastgele kayıt kimliği, iz numarası, tamga kodu, doğrulanmış
+ülke/bölge kodu ve sunucu zamanı tutulur. **İsim, e-posta, kamera görüntüsü, IP adresi
+ve kart görseli yazılmaz.** Ülke kodu yalnızca anonim ışığı doğru kümeye yerleştirmek
+için kullanılır. Aynı kayıt kimliği tekrar gönderildiğinde çoğaltılmaz. Ülke kodu
+içermeyen eski kayıtlar geriye uyumluluk için Türkiye kümesinde gösterilir.
+
+## Oturum sıfırlama
+
+- Tarayıcı `pagehide` olayında `POST /api/ortak-hafiza/sifirla` isteğini önce
+  `navigator.sendBeacon` ile gönderir; desteklenmiyorsa `keepalive: true` kullanan kısa
+  bir `fetch` denenir.
+- Geri-ileri önbelleğine alınan sayfalarda (`event.persisted`) yanlış sıfırlama yapılmaz.
+- Sunucu `SIGINT` ve `SIGTERM` kapanışlarında yalnızca `ortak-hafiza.ndjson` dosyasını
+  boşaltır.
+- Windows'ta süreç zorla kapatıldığında sinyal çalışmaz; bu duruma karşı sunucu **her
+  başlangıçta** önceki koleksiyonu sıfırlar. Temiz oturum garantisi budur.
+- `.env`, e-posta yapılandırması, bayraklar ve diğer proje dosyaları sıfırlama kapsamı
+  dışındadır.
 
 ---
 
-# Oturumluk Ortak Hafıza · v5.4.0
+# 21. SES
 
-Ortak Hafıza Göğü kalıcı etkinlik arşivi değil, açık kiosk oturumunun canlı görselidir. Sayfa kapatıldığında veya yenilendiğinde anonim harita sıfırlanır. Sunucu normal biçimde durdurulduğunda da aynı sıfırlama uygulanır.
+Bütün sesler Web Audio API ile cihazda üretilir; harici ses dosyası yoktur.
 
-- Tarayıcı `pagehide` olayında `POST /api/ortak-hafiza/sifirla` isteğini öncelikle `navigator.sendBeacon` ile gönderir.
-- Beacon desteklenmiyorsa `keepalive: true` kullanan kısa bir `fetch` isteği denenir.
-- Geri-ileri önbelleğine alınan (`event.persisted`) sayfalarda yanlış sıfırlama yapılmaz.
-- Sunucu `SIGINT` ve `SIGTERM` kapanışlarında yalnızca `ortak-hafiza.ndjson` dosyasını güvenli biçimde boşaltır.
-- Windows terminalinin zorla kapanması gibi sinyalin çalışamadığı durumlara karşı sunucu her başlangıçta önceki anonim koleksiyonu sıfırlar.
-- `.env`, e-posta yapılandırması, bayraklar, kartlar ve diğer proje dosyaları sıfırlama kapsamı dışındadır.
-- Kapanış isteği veya sinyal çalışmasa bile sonraki sunucu başlangıcı temiz bir gökyüzüyle başlar.
-
----
-
-# Güçlendirilmiş taş işleme · v5.5.0
-
-Taşa işleme töreni, her Kök Türk işaretinin fiziksel bir darbe hissiyle ayrı ayrı kazındığı sinematik bir sahneye dönüştürülür.
-
-- Her rune kendi taş koordinatında altın/turkuaz darbe ışığı, genişleyen halka ve konumsal Canvas kıvılcımı üretir.
-- Taş, her darbede kısa ve kontrollü bir titreşim verir; uzun metinlerde parçacık yoğunluğu otomatik düşürülür.
-- Işıklı çatlaklar işleme ilerlemesine göre üç kademede dallanır.
-- Arka plandaki düşük yoğunluklu taş tozu tören boyunca canlı kalır.
-- Final mührü taş parlaması, çatlak aydınlanması ve tüm sahneye yayılan enerji dalgasıyla tamamlanır.
-- Efektler harici görsel veya yeni paket kullanmaz; CSS ve mevcut Canvas 2D/Web Audio altyapısıyla çalışır.
-- `prefers-reduced-motion` etkin olduğunda tören mevcut güvenli davranışla atlanır.
+- Harf seçimi, rune darbesi ve final mührü için ayrı ton desenleri vardır.
+- Tarayıcının ses kilidi ilk kullanıcı etkileşiminde `resume()` tamamlanana kadar
+  beklenerek açılır.
+- Üst menüdeki `♫ SES AÇIK / ♩ SES KAPALI` düğmesi sesi yönetir; ses yeniden
+  açıldığında üç notalı bir test melodisi çalar, böylece çalıştığı duyulabilir.
+- Tarayıcı sesi başlatamazsa durum sessizce `SES KAPALI`ya döner ve kullanıcıya sekmenin
+  sessize alınmış olabileceği bildirilir.
+- Ana kazanç 0.78 ile sınırlıdır; tek tonlar 0.024–0.14 aralığındadır.
 
 ---
 
-# Çevrimdışı kiosk ve sunucu sertleştirmesi · v5.6.0
+# 22. TAM EKRAN, RESPONSIVE VE ERİŞİLEBİLİRLİK
 
-Etkinlik salonunda internet olmayabileceği için bütün üçüncü taraf bağımlılıklar proje içine alınır. Çalışma anında hiçbir harici istek yapılmaz.
+Etkinlikte kiosk deneyimi için tam ekran önemlidir; Fullscreen API kullanılır ve düğme
+metni duruma göre güncellenir.
 
-- MediaPipe Tasks Vision, el takip modeli, html2canvas ve Cinzel/Inter yazı tipleri `vendor/` altında sürüme sabitlenir; kaynak, lisans ve SHA-256 kayıtları `vendor/README.md` içindedir.
-- `styles.css` içindeki Google Fonts `@import`'u `vendor/fonts/fonts.css` ile değiştirilir. Yazı tipleri latin ve latin-ext alt kümeleriyle sınırlanır; Cinzel ve Inter variable font olduğu için 16 indirme 4 tekil dosyaya iner.
-- `npm run vendor:check` bütün `vendor/` dosyalarının SHA-256 özetini yazar; çıktı `vendor/README.md` içindeki kayıtla birebir aynı olmalıdır.
-- `vendor/` içeriği sürüme sabit olduğu için `immutable` önbelleğe alınır; uygulama dosyaları `no-cache` kalır.
-- Statik sunucuda yasak dosya listesi, URL'in ilk parçası yerine `path.resolve` ile çözümlenmiş yolun her parçası üzerinden denetlenir. Önceki davranışta `/assets/..%2f.env` isteği `.env` dosyasını gövdede döndürüyordu.
-- `PROJECT_PROMPT.md` iç belgesi web üzerinden sunulmaz.
-- Hatıra kartı gönderim sınırı dakikada 5 yerine 20'dir; kiosk'ta bütün ziyaretçiler aynı yerel adresten geldiği için sınır ortaktır.
-- Hız sınırı kayıt tablosu budanır, sürüm bilgisi tek kaynaktan (`package.json`) okunur, `baslat.ps1` sabit port yerine `.env` içindeki `PORT` değerini kullanır.
-- `.env.example` depoya dahildir; `ortak-hafiza.ndjson` çalışma anında üretildiği için depoda tutulmaz.
+Hedef ekranlar `1920 × 1080`, `1600 × 900` ve `1366 × 768`. Özellikle 1366 × 768
+laptop ekranında sayfa kaydırma istemeden çalışır. Yaklaşık katman payları: üst
+kurumsal %23–25, orta deneyim %50, alt klavye %25–27.
+
+CSS'te `clamp()`, `vw`, `vh`, `minmax()`, grid ve media query kullanılır. Küçük ekran
+uyumu yapılırken büyük ekran tasarımının anıtsallığı bozulmaz. Sanal klavye 320–760 px
+mobil ekranlarda on iki tuşlu en geniş satırı sığdıracak biçimde ölçeklenir ve yatay
+taşma oluşturmaz.
+
+Erişilebilirlik:
+
+- Durum metinleri `role="status"` ve `aria-live="polite"` ile duyurulur.
+- Klavye ve ülke seçimi `role="radiogroup"` / `role="radio"` ve `aria-checked` kullanır.
+- Modallar `role="dialog"` ve `aria-modal` taşır; açılışta odak kapatma düğmesine
+  taşınır, kapanışta önceki öğeye geri döner.
+- `prefers-reduced-motion` etkinse ülke karşılaması ve taş işleme töreni atlanır,
+  gökyüzü nabzı durur, bayrak dalgalanması kapanır.
+
+---
+
+# 23. PERFORMANS
+
+Uygulama etkinlikte uzun süre açık kalır. Kaçınılması gerekenler:
+
+- her animasyon karesinde gereksiz DOM oluşturmak,
+- MediaPipe modelini tekrar yüklemek,
+- birden çok `requestAnimationFrame` döngüsü başlatmak,
+- durdurulmuş kameranın track'lerini açık bırakmak,
+- her el karesinde ağır görsel render etmek.
+
+Uygulanan sınırlar:
+
+- MediaPipe analizi yaklaşık 40 ms aralıkla ve yalnızca yeni video karesinde çalışır.
+- Canvas ölçekleri `devicePixelRatio` ile en çok 2 katına sınırlanır.
+- Tören parçacıkları 340, imleç enerji izi 28 nokta ile sınırlıdır.
+- Sahneler kapandığında animasyon kareleri iptal edilir ve parçacık/zamanlayıcı
+  bellekleri boşaltılır.
+- Hız sınırı kayıt tablosu 256 girdiyi aşınca budanır.
+- Dekoratif CSS animasyonları transform/opacity ağırlıklıdır.
+- `vendor/` dosyaları sürüme sabit olduğu için `immutable` önbelleğe alınır; 19 MB'lık
+  wasm ve model her sayfa yenilemesinde yeniden okunmaz. Uygulama dosyaları `no-cache`
+  kalır, böylece düzenlemeler anında görünür.
 
 ---
 
-# MIT lisanslı QR üretimi · v5.7.0
+# 24. GÜVENLİK VE GİZLİLİK
 
-QR kütüphanesi lisans nedeniyle değiştirilir. Projedeki bütün bağımlılıklar MIT, Apache-2.0 veya OFL-1.1 kapsamına girer; dağıtımda kopyasol yükümlülük kalmaz.
-
-- GPL-3.0 lisanslı QRious 4.0.2 yerine MIT lisanslı `qrcode-generator` 2.0.4 kullanılır.
-- Kütüphane yalnızca modül matrisi ürettiği için Canvas 2D çizimi `qrOlustur()` içinde yapılır. Renkler (`#001b18` / `#ffffff`), boyut ve en az 14 px sessiz alan önceki görünümle aynıdır.
-- `qrcode-generator-utf8.js` eklentisi zorunludur. Kütüphanenin varsayılan `stringToBytes` fonksiyonu her karakteri `c & 0xff` ile daraltır; bu durumda `ş` (U+015F) sessizce `_` (0x5F) olur ve Türkçe karakter içeren bir e-posta adresi QR içinde bozulur. Eklenti `stringToBytes`'ı UTF-8 sürümüyle değiştirir.
-- İçerik en büyük QR sürümüne de sığmazsa kart boş canvas yerine "QR üretilemedi" yer tutucusu gösterir.
-- Üretilen QR'lar bağımsız bir çözücüyle doğrulanmıştır: genel QR (sürüm 3) ve 302 karakterlik kişisel `mailto` QR'i (sürüm 13) giriş metniyle birebir eşit çözülür.
-- Kodda kullanılmayan `assets/design-reference.png` çalışma ağacından kaldırılır. Dosya git geçmişinde kaldığı için klonlama boyutu değişmez.
+- API anahtarı yalnızca sunucudaki `.env` dosyasında bulunur; tarayıcı JavaScript'ine
+  hiçbir koşulda yazılmaz.
+- E-posta adresi ve PNG yalnızca isteği doğrulamak ve sağlayıcıya aktarmak için bellekte
+  tutulur; diske yazılmaz, veritabanına kaydedilmez ve günlüklere eklenmez.
+- Statik sunucuda yasak dosya listesi, URL'in ilk parçası yerine `path.resolve` ile
+  **çözümlenmiş yolun her parçası** üzerinden denetlenir. İlk parça denetimi
+  `/assets/..%2f.env` gibi kodlanmış ayraçla atlatılabiliyordu ve `.env` dosyası
+  gövdede dönüyordu; bu v5.6.0'da kapatıldı.
+- Kök dizin dışına çıkan istekler 403, yasak veya gizli dosya istekleri 404 döner.
+- Web üzerinden sunulmayanlar: `.env`, `.env.example`, `.gitignore`, `package.json`,
+  `server.js`, `baslat.ps1`, `baslat.bat`, `ortak-hafiza.ndjson`, `PROJECT_PROMPT.md`
+  ve nokta ile başlayan bütün girdiler.
+- Yanıtlarda `X-Content-Type-Options: nosniff` ve `Referrer-Policy: same-origin`
+  gönderilir; API yanıtları `no-store` ile işaretlenir.
+- Varsayılan `HOST=127.0.0.1` yalnızca yerel bağlantıya izin verir. `0.0.0.0` yapılırsa
+  kiosk aynı ağdaki her cihaza açılır; bu bilinçli bir karar olmalıdır.
+- Ortak Hafıza koleksiyonu kişiye geri bağlanamaz (20. bölüm).
 
 ---
+
+# 25. TEST SENARYOLARI
+
+Her değişiklikten sonra çalıştırılır.
+
+## Statik denetim
+
+```powershell
+npm run check
+npm run vendor:check
+```
+
+`vendor:check` çıktısı `vendor/README.md` içindeki kayıtla birebir aynı olmalıdır.
+
+## Temel yazma
+
+1. Uygulamayı aç. 2. Fiziksel klavyeden `ENES` yaz. 3. Latin alanında `ENES` görünmeli.
+4. Kök Türk alanı güncellenmeli. 5. Taşta rune sütunu görünmeli.
+
+## Uzun kelime
+
+`ENES`, `TÜRKİYE`, `AZERBAYCAN`, `TÜRKDEVLETLERİ`, `TÜRKDEVLETLERİTEŞKİLATI` yazılır.
+Taşta 1 → 2 → 3 → 4 sütun geçişleri doğru yapılmalı, hiçbir işaret taşın dışına
+çıkmamalıdır.
+
+## Kamera
+
+1. `KAMERAYI BAŞLAT`. 2. Görüntü görünmeli. 3. Model `Model hazır` durumuna geçmeli.
+4. El gösterildiğinde landmark iskeleti çizilmeli. 5. İmleç işaret parmağını takip
+etmeli.
+
+## Pinch
+
+1. Harfin üzerine gel, pinch yapma — harf yazılmamalı. 2. Parmakları birleştir — harf
+bir kez yazılmalı. 3. Birleşik tut — aynı harf tekrar yazılmamalı. 4. Ayır ve tekrar
+pinch yap — yeni seçim olmalı.
+
+## Yanlış tuş testi
+
+1. Bir tuş üzerinde pinch başlat. 2. Pinch kapanmadan elini yan tuşa kaydır.
+3. Yanlış harf basılmamalıdır.
+
+## Ülke seremonisi
+
+Sekiz düğmenin her biri seçilir; ülkeye özel renk, mühür, geometrik motif, dalgalanan
+bayrak ve karşılama metni güncellenmelidir.
+
+## Hatıra kartı
+
+1. Metin yaz. 2. E-posta gir. 3. Kartı aç — tören oynamalı, runeler tek tek kazınmalı,
+çatlaklar kademeli ilerlemeli, yıldız seçilen ülke kümesine uçmalı. 4. Latin ve Kök Türk
+metni doğru olmalı. 5. Taş sütunları doğru olmalı. 6. İz No ve tamga görünmeli.
+7. QR oluşmalı. 8. PNG indirilebilmeli ve ekrandaki kartla tutarlı olmalı.
+
+## QR doğrulaması
+
+Üretilen QR bağımsız bir çözücüyle okunup giriş metniyle karşılaştırılır. Türkçe
+karakter içeren bir e-posta adresi (`ömer@şirket.com` gibi) ile de denenir; `ş` ve `ö`
+bozulmadan çözülmelidir.
+
+## Çevrimdışı doğrulaması
+
+Ağ bağlantısı kesilip sayfa yenilenir. Yazı tipleri, QR, kamera/el takibi ve kart PNG
+üretimi çalışmaya devam etmelidir; yalnızca gerçek e-posta gönderimi başarısız olur.
+Tarayıcı konsolunda `localhost` dışına giden istek görünmemelidir.
+
+## E-posta akışı
+
+`.env` içinde `KOKIZ_MOCK_EMAIL=true` ile `/api/saglik` yanıtında `epostaHazir: true` ve
+`testModu: true` doğrulanır, arayüzde test gönderiminin tamamlandığı görülür. Ardından
+gerçek Resend değerleriyle `KOKIZ_MOCK_EMAIL=false` yapılıp yalnızca kendi adresinize
+gerçek gönderim denenir.
+
+## Ortak Hafıza
+
+Gökyüzü açılır; her ülke çemberinin bayrak mührü, izlerin renkli kümelere ayrılması ve
+aktif kümelerin bağlanması kontrol edilir. Sayfa yenilendiğinde gökyüzü sıfırlanmalı,
+`.env` ve diğer dosyalar etkilenmemelidir.
+
+---
+
+# 26. DEĞİŞİKLİK YAPARKEN KURALLAR
+
+Mevcut çalışan özellikler silinmez. Şunlar regresyona uğramamalıdır:
+
+kamera · MediaPipe · el landmark çizimi · işaret parmağı imleci · pinch · sanal klavye ·
+fiziksel klavye · 24 karakter sınırı · Kök Türk dönüşümü · dinamik kitabe sütunları ·
+ülke seçimi ve seremonisi · taş işleme töreni · hatıra kartı · kişisel tamga · QR ·
+PNG indirme · Web Share · e-posta teslimi · Ortak Hafıza Göğü · ses · tam ekran
+
+Kod düzeni:
+
+- Türkçe fonksiyon ve değişken adlandırma düzeni korunur.
+- Tasarım düzenlemelerinde mevcut DOM ID'leri korunmaya çalışılır. ID değiştirmek
+  gerekiyorsa `app.js` tarafı aynı değişiklikte güncellenir.
+- Yeni harici paket veya görsel bağımlılığı eklenmez; efektler mevcut
+  HTML/CSS/Canvas/Web Audio altyapısında kalır.
+- `vendor/` içeriği elle düzenlenmez. Sürüm yükseltmesi yapılırsa dosya yeniden
+  indirilir, SHA-256 özeti `vendor/README.md` içinde güncellenir ve
+  `npm run vendor:check` ile doğrulanır.
+- Kod değişikliği istendiğinde yarım parça verilmez; değişen dosyaların tam ve çalışır
+  hali sağlanır.
+
+Etkinlikte demo edileceği için öncelik sırası: 1) çalışması, 2) kamera/pinch
+güvenilirliği, 3) ekrana sığması, 4) tasarım etkisi, 5) hatıra kartının kalitesi,
+6) kod temizliği.
+
+---
+
+# 27. SÜRÜM GEÇMİŞİ
+
+| Sürüm | Değişiklik |
+| --- | --- |
+| v3.0.0 | Node.js backend'i ve Resend ile gerçek e-posta teslimi. |
+| v3.1.0 | Unicode Orhon repertuvarı; kalın/ince ünlü uyumu ve birleşik işaretler. |
+| v4.0.1 | Sinematik taş işleme töreni; Canvas 2D ve Web Audio katmanı. |
+| v4.1.0 | Sabit `1440 × 960` kart yüzeyi, dört ölçek kademesi, kamera kesilme algısı. |
+| v4.1.1 | Mobil klavyenin 320–760 px aralığında akışkan ölçeklenmesi. |
+| v4.1.2 | Mobil önizleme ile dışa aktarılan kartın aynı `3:2` oranını koruması. |
+| v5.0.0 | Ortak Hafıza Göğü ve deterministik kişisel tamga. |
+| v5.1.0 | Sekiz kök coğrafya; ülke kümeleri ve kart mührü. |
+| v5.2.0 | Kök coğrafya karşılama seremonisi ve kişisel yıldız uçuşu. |
+| v5.3.0 | Özgün bayrakların proje içine alınması ve CSS ile dalgalandırılması. |
+| v5.3.1 | Gökyüzü ülke çemberlerinde dairesel bayrak mühürleri. |
+| v5.4.0 | Oturumluk Ortak Hafıza; `pagehide`, sinyal ve açılış sıfırlaması. |
+| v5.5.0 | Güçlendirilmiş taş işleme: konumsal kıvılcım, kademeli çatlak, enerji dalgası. |
+| v5.6.0 | Çevrimdışı kiosk: bütün bağımlılıklar `vendor/` altına alındı. Yol denetimi açığı kapatıldı, iç belge web'den engellendi, gönderim sınırı 20'ye çıktı. |
+| v5.7.0 | GPL-3.0 lisanslı QRious yerine MIT lisanslı `qrcode-generator`. Kullanılmayan `design-reference.png` kaldırıldı. |
+| v5.7.1 | Bu belge geliştirme promptundan teknik şartnameye çevrildi. |
+
+---
+
+# 28. BİLİNEN BOŞLUKLAR
+
+Şartnamenin erken sürümlerinde tanımlanan ama uygulanmayan tek öğe, ana sahnenin sağ
+kolonunda planlanan **"Söz" panelidir** (bir metin havuzundan seçilen kültürel
+aforizmaları gösteren altın çerçeveli HUD paneli). O alan kamera HUD paneline
+ayrılmıştır ve kamera deneyimin merkezinde olduğu için orada kalması gerekir.
+
+Söz paneli ileride istenirse hatıra kartının orta katmanına veya üst sahneye
+eklenebilir; mevcut düzende ana sahnede yeri yoktur.

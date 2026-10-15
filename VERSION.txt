@@ -1,9 +1,8 @@
-5.7.0
+5.7.1
 2026-10-15
 
-Lisans: GPL-3.0 lisanslı QRious, MIT lisanslı qrcode-generator 2.0.4 ile değiştirildi.
-Artık bütün bağımlılıklar MIT, Apache-2.0 veya OFL-1.1 kapsamında. QR çizimi Canvas 2D
-ile yapılır; renk, boyut ve sessiz alan korunur. UTF-8 eklentisi Türkçe karakterli
-e-posta adreslerinin QR içinde bozulmasını engeller.
-
-Kullanılmayan assets/design-reference.png (2.8 MB) depodan kaldırıldı.
+PROJECT_PROMPT.md bir geliştirme promptundan teknik şartnameye çevrildi.
+28 bölüm, kodla doğrulanmış sayısal sabitler ve tam rune tablosu içerir.
+Eski belgedeki rune tablosu 17 yerde kodla çelişiyordu (E ve Ü yanlış,
+kalın/ince çiftleri tek biçim gösterilmiş, birleşik işaretler eksikti).
+Uygulanmayan "Söz paneli" bilinen boşluk olarak kayda geçti.

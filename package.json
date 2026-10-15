@@ -1,6 +1,6 @@
 {
   "name": "kokiz-etkilesimli-yazi-duvari",
-  "version": "5.7.0",
+  "version": "5.7.1",
   "private": true,
   "description": "KÖKİZ kamera deneyimi ve e-posta teslim backend'i",
   "main": "server.js",
